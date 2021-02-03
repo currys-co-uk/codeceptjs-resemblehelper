@@ -9,16 +9,12 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    container: node:lts-slim
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
           node-version: "15.x"
-      - run: apt-get update && apt-get install -y python3 make g++ python build-essential libcairo2-dev
-      - run: npm i
-      - run: npm test
-      #- run: npx semantic-release --debug
+      - run: docker build -t release_package -f ./docker/release/Dockerfile .
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
