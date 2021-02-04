@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container: 'node:lts'
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - run: npm ci
       - run: npm test
       - run: pwd
