@@ -9,12 +9,18 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    container:
+        image: node:lts 
+        env:
+            NPM_TOKEN: ${{ secrets.NPM_TOKEN}}
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
           node-version: "15.x"
-      - run: docker build -t release_package -f ./docker/release/Dockerfile .
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #- run: docker build -t release_package -f ./docker/release/Dockerfile .
+       - run: npm ci
+       - run: npm test
+        #env:
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
