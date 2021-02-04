@@ -12,9 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     container: 'node:lts'
     steps:
+      - run: apt-get update && apt-get install git
       - uses: actions/checkout@v2
       - run: npm ci
       - run: npm test
+      - run: git --version
       - run: pwd
       - run: ls -la
       - run: npx semantic-release --debug
