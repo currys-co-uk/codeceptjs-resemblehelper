@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:dixons/codeceptjs-resemblehelper.git"
+    "url": "git+https://github.com/dixons/codeceptjs-resemblehelper.git"
   },
   "dependencies": {
     "assert": "^1.5.0",

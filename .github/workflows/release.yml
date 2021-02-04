@@ -9,12 +9,9 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    container: 'node:lts'
+    container: 'node:lts-buster'
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "15.x"
+      - uses: actions/checkout@v2
       - run: npm ci
       - run: npm test
       - run: npx semantic-release --debug
