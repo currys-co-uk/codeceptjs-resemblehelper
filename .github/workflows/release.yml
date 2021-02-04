@@ -10,9 +10,8 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    container: 'node:lts'
+    container: 'node:lts-buster'
     steps:
-      - run: apt-get update && apt-get --yes upgrade && apt-get --yes install git
       - uses: actions/checkout@v2
       - run: npm ci
       - run: npm test
