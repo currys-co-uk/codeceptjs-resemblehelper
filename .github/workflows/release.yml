@@ -12,9 +12,6 @@ jobs:
     container: 'node:lts'
     steps:
       - uses: actions/checkout@master
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "15.x"
       - run: npm ci
       - run: npm test
       - run: npx semantic-release --debug
