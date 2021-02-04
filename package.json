@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "Forked Resemble Js helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
+  "description": "Forked Resemble JS helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
   "main": "index.js",
   "homepage": "https://github.com/dixons/codeceptjs-resemblehelper#readme",
   "scripts": {
