@@ -112,8 +112,8 @@ class ResembleHelper extends Helper {
    * @param options
    * @returns {Promise<*>}
    */
-  async _fetchMisMatchPercentage(image, options) {
-    const diffImage = `Diff_${image.split('.')[0]}_${this._getTimestamp()}`;
+  async _fetchMisMatchPercentage(image, options, timestamp) {
+    const diffImage = `Diff_${image.split('.')[0]}_${timestamp}`;
     const result = this._compareImages(image, diffImage, options);
     const data = await Promise.resolve(result);
     return data.misMatchPercentage;
@@ -159,9 +159,9 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void>}
    */
 
-  async _addAttachment(baseImage, misMatch, tolerance) {
+  async _addAttachment(baseImage, misMatch, tolerance, timestamp) {
     const allure = codeceptjs.container.plugins('allure');
-    const diffImage = `Diff_${baseImage.split('.')[0]}.png`;
+    const diffImage = `Diff_${baseImage.split('.')[0]}_${timestamp}.png`;
 
     if (allure !== undefined && misMatch >= tolerance) {
       allure.addAttachment('Base Image', fs.readFileSync(this.baseFolder + baseImage), 'image/png');
@@ -354,8 +354,9 @@ class ResembleHelper extends Helper {
     if (selector) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
-    const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-    await this._addAttachment(baseImage, misMatch, options.tolerance);
+    const imageTimestamp = this._getTimestamp();
+    const misMatch = await this._fetchMisMatchPercentage(baseImage, options, imageTimestamp);
+    await this._addAttachment(baseImage, misMatch, options.tolerance, imageTimestamp);
     await this._addMochaContext(baseImage, misMatch, options.tolerance);
     if (awsC !== undefined) {
       await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage);
