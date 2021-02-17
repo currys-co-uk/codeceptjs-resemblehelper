@@ -513,6 +513,7 @@ class ResembleHelper extends Helper {
     const helper = this._getHelper();
     await helper.waitForVisible(selector);
     const els = await helper._locate(selector);
+    const { browser } = this.helpers.WebDriver;
     let location; let size;
 
     if (this.helpers['WebDriver'] || this.helpers['Appium']) {
@@ -525,16 +526,21 @@ class ResembleHelper extends Helper {
       throw new Error('Cannot get element size!');
     }
 
-    const bottom = size.height + location.y;
-    const right = size.width + location.x;
+    const scrollbarCoordinates = await browser.execute('return { offsetX: window.pageXOffset, offsetY: window.pageYOffset }');
+
+    const bottom = size.height + location.y - scrollbarCoordinates.offsetY;
+    const right = size.width + location.x - scrollbarCoordinates.offsetX;
+    const left = location.x - scrollbarCoordinates.offsetX;
+    const top = location.y - scrollbarCoordinates.offsetY;
     const ignoredBox = {
-      left: location.x,
-      top: location.y,
+      left: left,
+      top: top,
       right: right,
       bottom: bottom,
     };
 
     this.debug(`Element: "${selector}" has coordinates: ${JSON.stringify(ignoredBox)}`);
+    this.debug(`Browser screen was scrolled "${JSON.stringify(scrollbarCoordinates.offsetY)}" px vertically and "${JSON.stringify(scrollbarCoordinates.offsetX)}" px horizontal.`);
 
     return ignoredBox;
   }
