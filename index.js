@@ -526,12 +526,12 @@ class ResembleHelper extends Helper {
       throw new Error('Cannot get element size!');
     }
 
-    const scrollbarCoordinates = await browser.execute('return { offsetX: window.pageXOffset, offsetY: window.pageYOffset }');
+    const scrollOffset = await browser.execute('return { X: window.pageXOffset, Y: window.pageYOffset }');
 
-    const bottom = size.height + location.y - scrollbarCoordinates.offsetY;
-    const right = size.width + location.x - scrollbarCoordinates.offsetX;
-    const left = location.x - scrollbarCoordinates.offsetX;
-    const top = location.y - scrollbarCoordinates.offsetY;
+    const bottom = location.y + size.height - scrollOffset.Y;
+    const right = location.x + size.width - scrollOffset.X;
+    const left = location.x - scrollOffset.X;
+    const top = location.y - scrollOffset.Y;
     const ignoredBox = {
       left: left,
       top: top,
@@ -540,7 +540,7 @@ class ResembleHelper extends Helper {
     };
 
     this.debug(`Element: "${selector}" has coordinates: ${JSON.stringify(ignoredBox)}`);
-    this.debug(`Browser screen was scrolled "${JSON.stringify(scrollbarCoordinates.offsetY)}" px vertically and "${JSON.stringify(scrollbarCoordinates.offsetX)}" px horizontal.`);
+    this.debug(`Browser screen was scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(scrollOffset.X)}" px horizontal.`);
 
     return ignoredBox;
   }
