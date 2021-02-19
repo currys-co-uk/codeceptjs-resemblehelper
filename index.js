@@ -337,6 +337,10 @@ class ResembleHelper extends Helper {
       options.ignoredBoxes = await this._getIgnoredBoxesFromElements(options.ignoredElements);
     }
 
+    if (options.ignoredQueryElementAll !== undefined) {
+      options.ignoredBoxes = await this._locateAll(options.ignoredQueryElementAll);
+    }
+
     const prepareBaseImage = options.prepareBaseImage !== undefined
       ? options.prepareBaseImage
       : (this.prepareBaseImage === true);
@@ -513,11 +517,32 @@ class ResembleHelper extends Helper {
     const helper = this._getHelper();
     await helper.waitForVisible(selector);
     const els = await helper._locate(selector);
+
+    return this._countCoordinates(els[0], selector);
+  }
+
+  /**
+   * Function for translate elements coordinates to ignoredBoxes
+   *
+   * @param options Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+   * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
+   */
+  async _getIgnoredBoxesFromElements(options) {
+    return await Promise.all(options.map(async (item) => await this._getElementCoordinates(item)));
+  }
+
+  /**
+   * Function for count selector coordinates
+   *
+   * @param el counted element
+   * @param selector represents counted element in human language
+   * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
+   */
+  async _countCoordinates(el, selector) {
     const { browser } = this.helpers.WebDriver;
     let location; let size;
 
     if (this.helpers['WebDriver'] || this.helpers['Appium']) {
-      const el = els[0];
       location = await el.getLocation();
       size = await el.getSize();
     }
@@ -539,20 +564,22 @@ class ResembleHelper extends Helper {
       bottom: bottom,
     };
 
-    this.debug(`Element: "${selector}" has coordinates: ${JSON.stringify(ignoredBox)}`);
+    this.debug(`Element: "${JSON.stringify(selector)}" has coordinates: ${JSON.stringify(ignoredBox)}`);
     this.debug(`Browser screen was scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(scrollOffset.X)}" px horizontal.`);
 
     return ignoredBox;
   }
 
   /**
-   * Function for translate elements coordinates to ignoredBoxes
+   * Function equivalent for querySelectorAll
    *
-   * @param options Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+   * @param selector CSS|XPath|ID selector
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
    */
-  async _getIgnoredBoxesFromElements(options) {
-    return await Promise.all(options.map(async (item) => await this._getElementCoordinates(item)));
+  async _locateAll(selector) {
+    const browser = this.helpers['WebDriver'];
+    const els = await browser._locate(selector);
+    return await Promise.all(els.map(async (item) => await this._countCoordinates(item, selector)));
   }
 
   _getHelper() {
