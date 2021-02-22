@@ -210,7 +210,7 @@ This works for `seeVisualDiff`.
 __Note__: DON'T use combination of `ignored box/boxes/element/elements` together, ALWAYS use only one of them as options !!!
 
 ### Ignored queryElementAll
-Functionality element selection is similar as `querySelectorAll` in `DOM`, `ignoredQueryElementAll` will find all same elements on the page and ignore them.
+Functionality element selection is similar as `querySelectorAll` in `DOM`, `ignoredQueryElementAll` will find all identical/query suitable elements on the page and ignore them.
 ```js
 Scenario('Ignore all same elements', async ({ I }) => {
   //I.amOnPage('https://the-internet.herokuapp.com');
