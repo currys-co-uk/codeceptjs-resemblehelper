@@ -209,6 +209,16 @@ This works for `seeVisualDiff`.
 
 __Note__: DON'T use combination of `ignored box/boxes/element/elements` together, ALWAYS use only one of them as options !!!
 
+### Ignored queryElementAll
+Functionality element selection is similar as `querySelectorAll` in `DOM`, `ignoredQueryElementAll` will find all identical/query suitable elements on the page and ignore them.
+```js
+Scenario('Ignore all same elements', async ({ I }) => {
+  //I.amOnPage('https://the-internet.herokuapp.com');
+  //await I.saveScreenshot('image.png');
+  await I.seeVisualDiff('image.png', { ignoredQueryElementAll: '//ul/li/a' });
+});
+```
+
 ### resemble.js Output Settings
 You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
 
