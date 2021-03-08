@@ -6,6 +6,7 @@ const getDirName = require('path').dirname;
 const AWS = require('aws-sdk');
 const path = require('path');
 const sizeOf = require('image-size');
+const chalk = require('chalk');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -20,6 +21,7 @@ class ResembleHelper extends Helper {
     this.screenshotFolder = `${global.output_dir}/`;
     this.prepareBaseImage = config.prepareBaseImage;
     this.tolerance = config.tolerance;
+    this.skipFailure = config.skipFailure;
   }
 
   resolvePath(folderPath) {
@@ -329,6 +331,10 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
+    if (this.skipFailure !== undefined) {
+      options.skipFailure = this.skipFailure;
+    }
+
     if (options.ignoredElement !== undefined) {
       options.ignoredBox = await this._getElementCoordinates(options.ignoredElement);
     }
@@ -370,6 +376,12 @@ class ResembleHelper extends Helper {
 
     if (!options.skipFailure) {
       assert(misMatch <= options.tolerance, `Screenshot does not match with the baseline ${baseImage} when MissMatch Percentage is ${misMatch}`);
+    }
+    if ((options.skipFailure === true) && (misMatch >= options.tolerance)) {
+      console.log(`${chalk.red.bgYellowBright.bold('--------------- WARNING ---------------')}`);
+      console.log(chalk.red.bgYellowBright.bold`You have set "skipFailure: true"`);
+      console.log(chalk.red.bgYellowBright.bold`Your baseline "${baseImage}" MissMatch Percentage is ${misMatch}`);
+      console.log(`${chalk.red.bgYellowBright.bold('-------------- END WARNING --------------')}`);
     }
   }
 

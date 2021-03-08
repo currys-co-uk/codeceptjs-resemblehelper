@@ -23,7 +23,8 @@ Example:
        "baseFolder": "./tests/screenshots/base/",
        "diffFolder": "./tests/screenshots/diff/",
        "prepareBaseImage": true,
-       "tolerance": 10
+       "tolerance": 10,
+       "skipFailure": true
      }
    }
 }
@@ -80,7 +81,6 @@ Third one is the `screenshotElement` which basically takes screenshot of the ele
 ```js
 I.screenshotElement("selectorForElement", "nameForImage");
 ```
-> Note: This method only works with puppeteer.
 
 Finally to use the helper in your test, you can write something like this:
 
@@ -237,6 +237,18 @@ You can avoid the test fails for a given threshold but yet generates the differe
 Just declare an object and pass it in options as `skipFailure`:
 ```
 I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, skipFailure: true});
+```
+or as global in config:
+```
+{
+   "helpers": {
+     "ResembleHelper" : {
+       ...
+       "skipFailure": true
+       ...
+     }
+   }
+}
 ```
 After this, the system generates the difference image but does not fail the test.
 This works for `seeVisualDiff` and `seeVisualDiffForElement`.
