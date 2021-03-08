@@ -21,13 +21,14 @@
   },
   "dependencies": {
     "assert": "^1.5.0",
-    "canvas": "^2.6.1",
-    "mz": "^2.7.0",
-    "resemblejs": "^3.2.4",
-    "mkdirp": "^1.0.4",
-    "path": "^0.12.7",
     "aws-sdk": "^2.662.0",
-    "image-size": "^0.8.3"
+    "canvas": "^2.6.1",
+    "chalk": "^4.1.0",
+    "image-size": "^0.8.3",
+    "mkdirp": "^1.0.4",
+    "mz": "^2.7.0",
+    "path": "^0.12.7",
+    "resemblejs": "^3.2.4"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^5.0.1",
