@@ -318,7 +318,6 @@ class ResembleHelper extends Helper {
   async _assertVisualDiff(selector, baseImage, options) {
     if (!options) {
       options = {};
-      options.tolerance = 0;
     }
 
     if (this.tolerance !== undefined) {
