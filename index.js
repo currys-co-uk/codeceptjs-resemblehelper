@@ -550,7 +550,7 @@ class ResembleHelper extends Helper {
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
    */
   async _countCoordinates(el, selector) {
-    const { browser } = this.helpers.WebDriver;
+    let helper = this._getHelper();
     let location; let size;
 
     if (this.helpers['WebDriver'] || this.helpers['Appium']) {
@@ -558,11 +558,16 @@ class ResembleHelper extends Helper {
       size = await el.getSize();
     }
 
+    if (this.helpers['Puppeteer'] || this.helpers['Playwright']) {
+      const box = await el.boundingBox();
+      size = location = box;
+    }
+
     if (!size) {
       throw new Error('Cannot get element size!');
     }
 
-    const scrollOffset = await browser.execute('return { X: window.pageXOffset, Y: window.pageYOffset }');
+    const scrollOffset = await helper.executeScript(() => ({ X: window.pageXOffset, Y: window.pageYOffset }));
 
     const bottom = location.y + size.height - scrollOffset.Y;
     const right = location.x + size.width - scrollOffset.X;
@@ -588,7 +593,7 @@ class ResembleHelper extends Helper {
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
    */
   async _locateAll(selector) {
-    const browser = this.helpers['WebDriver'];
+    const browser = this.helpers['WebDriver'] || this.helpers['Playwright'];
     const els = await browser._locate(selector);
     return await Promise.all(els.map(async (item) => await this._countCoordinates(item, selector)));
   }
