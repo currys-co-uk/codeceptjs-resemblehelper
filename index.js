@@ -550,7 +550,7 @@ class ResembleHelper extends Helper {
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
    */
   async _countCoordinates(el, selector) {
-    let helper = this._getHelper();
+    const helper = this._getHelper();
     let location; let size;
 
     if (this.helpers['WebDriver'] || this.helpers['Appium']) {
