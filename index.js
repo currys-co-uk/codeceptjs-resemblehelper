@@ -22,6 +22,7 @@ class ResembleHelper extends Helper {
     this.prepareBaseImage = config.prepareBaseImage;
     this.tolerance = config.tolerance;
     this.skipFailure = config.skipFailure;
+    this.createDiffInToleranceRange = config.createDiffInToleranceRange;
   }
 
   resolvePath(folderPath) {
@@ -86,13 +87,29 @@ class ResembleHelper extends Helper {
             reject(new Error(`The base image is of ${dimensions1.height} X ${dimensions1.width} and actual image is of ${dimensions2.height} X ${dimensions2.width}. Please use images of same dimensions so as to avoid any unexpected results.`));
           }
           resolve(data);
-          if (data.misMatchPercentage >= tolerance) {
+          if (data.misMatchPercentage >= tolerance && this.createDiffInToleranceRange !== true) {
             if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
               fs.mkdirSync(getDirName(this.diffFolder + diffImage));
             }
             fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
             const diffImagePath = path.join(process.cwd(), `${this.diffFolder + diffImage}.png`);
             this.debug(`Diff Image File Saved to: ${diffImagePath}`);
+          }
+          if (this.createDiffInToleranceRange === true) {
+            if (data.misMatchPercentage > 0 && data.misMatchPercentage <= tolerance) {
+              this.debug(`${chalk.yellow('createDiffInToleranceRange is set as true and met conditions')}`);
+              this.debug(chalk.yellow`Mismatch percentage: "${data.misMatchPercentage}" is less or equal than tolerance: ${tolerance}`);
+              this.debug(`${chalk.yellow('Creating diff ...')}`);
+              if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
+                fs.mkdirSync(getDirName(this.diffFolder + diffImage));
+              }
+              fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
+              const diffImagePath = path.join(process.cwd(), `${this.diffFolder + diffImage}.png`);
+              this.debug(`Diff Image File Saved to: ${diffImagePath}`);
+            } else {
+              this.debug(chalk.yellow`You have set createDiffInToleranceRange as true and your mismatch: ${data.misMatchPercentage} is not in tolerance: ${tolerance}`);
+              this.debug(chalk.yellow`Diff Image File NOT Saved.`);
+            }
           }
         }
       });

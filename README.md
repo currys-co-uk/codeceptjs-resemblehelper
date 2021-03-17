@@ -24,7 +24,8 @@ Example:
        "diffFolder": "./tests/screenshots/diff/",
        "prepareBaseImage": true,
        "tolerance": 10,
-       "skipFailure": true
+       "skipFailure": true,
+       "createDiffInToleranceRange": true
      }
    }
 }
@@ -218,6 +219,24 @@ Scenario('Ignore all same elements', async ({ I }) => {
   await I.seeVisualDiff('image.png', { ignoredQueryElementAll: '//ul/li/a' });
 });
 ```
+
+### createDiffInToleranceRange flag for generating diff images
+Default logic of creating diff images need to have greater mismatch, than tolerance.
+With set `createDiffInToleranceRange` as true in config you can affect generating diff images, if mismatch is in range of set tolerance (mismatch is not 0 but is less than tolerance).
+`createDiffInToleranceRange` cover only this condition.
+E.g.
+```
+{
+   "helpers": {
+     "ResembleHelper" : {
+       ...
+       "createDiffInToleranceRange": true
+       ...
+     }
+   }
+}
+```
+Options tolerance is 5, and test result mismatch was 2,4. -> diff image is created.
 
 ### resemble.js Output Settings
 You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
