@@ -92,7 +92,7 @@ class ResembleHelper extends Helper {
               fs.mkdirSync(getDirName(this.diffFolder + diffImage));
             }
             fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
-            const diffImagePath = path.join(process.cwd(), `${this.diffFolder + diffImage}.png`);
+            const diffImagePath = path.join(`${this.diffFolder + diffImage}.png`);
             this.debug(`Diff Image File Saved to: ${diffImagePath}`);
           }
           if (this.createDiffInToleranceRange === true) {
@@ -104,7 +104,7 @@ class ResembleHelper extends Helper {
                 fs.mkdirSync(getDirName(this.diffFolder + diffImage));
               }
               fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
-              const diffImagePath = path.join(process.cwd(), `${this.diffFolder + diffImage}.png`);
+              const diffImagePath = path.join(`${this.diffFolder + diffImage}.png`);
               this.debug(`Diff Image File Saved to: ${diffImagePath}`);
             } else {
               this.debug(chalk.yellow`You have set createDiffInToleranceRange as true and your mismatch: ${data.misMatchPercentage} is not in tolerance: ${tolerance}`);
