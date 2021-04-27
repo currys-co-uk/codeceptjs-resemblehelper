@@ -377,11 +377,13 @@ class ResembleHelper extends Helper {
       await this._prepareBaseImage(baseImage, options);
     }
 
+    const imageTimestamp = this._getTimestamp();
+    const misMatch = await this._fetchMisMatchPercentage(baseImage, options, imageTimestamp);
+
     if (selector) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
-    const imageTimestamp = this._getTimestamp();
-    const misMatch = await this._fetchMisMatchPercentage(baseImage, options, imageTimestamp);
+
     await this._addAttachment(baseImage, misMatch, options.tolerance, imageTimestamp);
     await this._addMochaContext(baseImage, misMatch, options.tolerance);
     if (awsC !== undefined) {
