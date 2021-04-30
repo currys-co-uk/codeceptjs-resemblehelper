@@ -316,7 +316,7 @@ class ResembleHelper extends Helper {
    * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<void>}
    */
-  async seeVisualDiff(baseImage, options) {
+  async seeVisualDiff(baseImage, options = undefined) {
     await this._assertVisualDiff(undefined, baseImage, options);
   }
 
@@ -328,11 +328,11 @@ class ResembleHelper extends Helper {
    * @param options    Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<void>}
    */
-  async seeVisualDiffForElement(selector, baseImage, options) {
+  async seeVisualDiffForElement(selector, baseImage, options = undefined) {
     await this._assertVisualDiff(selector, baseImage, options);
   }
 
-  async _assertVisualDiff(selector, baseImage, options) {
+  async _assertVisualDiff(selector, baseImage, options = undefined) {
     if (!options) {
       options = {};
     }
@@ -555,7 +555,7 @@ class ResembleHelper extends Helper {
    * Function for translate elements coordinates to ignoredBoxes
    *
    * @param options Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
-   * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
+   * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
    */
   async _getIgnoredBoxesFromElements(options) {
     return await Promise.all(options.map(async (item) => await this._getElementCoordinates(item)));
@@ -609,7 +609,7 @@ class ResembleHelper extends Helper {
    * Function equivalent for querySelectorAll
    *
    * @param selector CSS|XPath|ID selector
-   * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
+   * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
    */
   async _locateAll(selector) {
     const browser = this.helpers['WebDriver'] || this.helpers['Playwright'];
