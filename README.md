@@ -171,7 +171,7 @@ Scenario('Ignore element for screenshot visual diff', async ({ I }) => {
 );
 ```
 After this, specific element will be ignored while comparison.
-This works for `seeVisualDiff`.
+This works for `seeVisualDiff` & `seeVisualDiffForElement`.
 
 ### Ignored Boxes
 Similar as Ignored Box, but with more excluded parts of the image comparison specifying the excluded area in pixels from top left.
@@ -206,7 +206,7 @@ Scenario('Ignore 2 elements for screenshot visual diff', async ({ I }) => {
  );
 ```
 After this, that specific mentioned parts will be ignored while comparison.
-This works for `seeVisualDiff`.
+This works for `seeVisualDiff` & `seeVisualDiffForElement`.
 
 __Note__: DON'T use combination of `ignored box/boxes/element/elements` together, ALWAYS use only one of them as options !!!
 
@@ -219,6 +219,7 @@ Scenario('Ignore all same elements', async ({ I }) => {
   await I.seeVisualDiff('image.png', { ignoredQueryElementAll: '//ul/li/a' });
 });
 ```
+This works for `seeVisualDiff` & `seeVisualDiffForElement`.
 
 ### createDiffInToleranceRange flag for generating diff images
 Default logic of creating diff images need to have greater mismatch, than tolerance.
