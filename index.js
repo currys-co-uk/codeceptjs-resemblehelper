@@ -579,13 +579,13 @@ class ResembleHelper extends Helper {
    * Function for recount elements coordinates to ignoredBoxes in screenshotted element screenshot
    *
    * @selector selector CSS|XPath|ID selector
-   * @param options Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+   * @param ignoredElementsCoordinates Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
    */
-  async _reCountElementCoordinatesForIgnoreInScreenshotElement(selector, options) {
+  async _reCountElementCoordinatesForIgnoreInScreenshotElement(selector, ignoredElementsCoordinates) {
     const boundingBox = await this._getBoundingBox(selector);
 
-    options = options.map((elementCoordinates) => {
+    ignoredElementsCoordinates = ignoredElementsCoordinates.map((elementCoordinates) => {
       const left = elementCoordinates.left - boundingBox.left;
       const top = elementCoordinates.top - boundingBox.top;
       const right = elementCoordinates.right - boundingBox.left;
@@ -599,7 +599,7 @@ class ResembleHelper extends Helper {
       };
     });
 
-    return options;
+    return ignoredElementsCoordinates;
   }
 
   /**
