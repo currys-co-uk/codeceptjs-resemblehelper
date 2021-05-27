@@ -377,12 +377,36 @@ class ResembleHelper extends Helper {
       await this._prepareBaseImage(baseImage, options);
     }
 
+    if (selector) {
+      if (options.ignoredElement) {
+        const myBoundingBox = await this._getBoundingBox(selector);
+        // TODO will be refactored while upgrade to typescript with unify types for all types of ignoreXX
+        const ignoredLeft = options.ignoredBox.left - myBoundingBox.left;
+        const ignoredTop = options.ignoredBox.top - myBoundingBox.top;
+        const ignoredRight = options.ignoredBox.right - myBoundingBox.left;
+        const ignoredBottom = options.ignoredBox.bottom - myBoundingBox.top;
+
+        options.ignoredBox = {
+          left: ignoredLeft,
+          top: ignoredTop,
+          right: ignoredRight,
+          bottom: ignoredBottom,
+        };
+        this.debug(`You ignore one element in screenshotted element "${selector}" ...`);
+        this.debug(`Element coordinates were recounted to element screenshotted size as: ${JSON.stringify(options.ignoredBox)}`);
+      }
+
+      if (options.ignoredElements || options.ignoredQueryElementAll) {
+        options.ignoredBoxes = await this._reCountElementCoordinatesForIgnoreInScreenshotElement(selector, options.ignoredBoxes);
+        this.debug(`You ignore more elements in screenshotted element "${selector}" ...`);
+        this.debug(`Element coordinates were recounted to element screenshotted size as: ${JSON.stringify(options.ignoredBoxes)}`);
+      } else {
+        options.boundingBox = await this._getBoundingBox(selector);
+      }
+    }
+
     const imageTimestamp = this._getTimestamp();
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options, imageTimestamp);
-
-    if (selector) {
-      options.boundingBox = await this._getBoundingBox(selector);
-    }
 
     await this._addAttachment(baseImage, misMatch, options.tolerance, imageTimestamp);
     await this._addMochaContext(baseImage, misMatch, options.tolerance);
@@ -532,7 +556,7 @@ class ResembleHelper extends Helper {
       bottom: bottom,
     };
 
-    this.debugSection('Area', JSON.stringify(boundingBox));
+    this.debugSection(`Area for selector ${selector}`, JSON.stringify(boundingBox));
 
     return boundingBox;
   }
@@ -549,6 +573,33 @@ class ResembleHelper extends Helper {
     const els = await helper._locate(selector);
 
     return this._countCoordinates(els[0], selector);
+  }
+
+  /**
+   * Function for recount elements coordinates to ignoredBoxes in screenshotted element screenshot
+   *
+   * @selector selector CSS|XPath|ID selector
+   * @param ignoredElementsCoordinates Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+   * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
+   */
+  async _reCountElementCoordinatesForIgnoreInScreenshotElement(selector, ignoredElementsCoordinates) {
+    const boundingBox = await this._getBoundingBox(selector);
+
+    ignoredElementsCoordinates = ignoredElementsCoordinates.map((elementCoordinates) => {
+      const left = elementCoordinates.left - boundingBox.left;
+      const top = elementCoordinates.top - boundingBox.top;
+      const right = elementCoordinates.right - boundingBox.left;
+      const bottom = elementCoordinates.bottom - boundingBox.top;
+
+      return {
+        left: left,
+        top: top,
+        right: right,
+        bottom: bottom,
+      };
+    });
+
+    return ignoredElementsCoordinates;
   }
 
   /**
