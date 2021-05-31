@@ -23,6 +23,7 @@ class ResembleHelper extends Helper {
     this.tolerance = config.tolerance;
     this.skipFailure = config.skipFailure;
     this.createDiffInToleranceRange = config.createDiffInToleranceRange;
+    this.alwaysSaveDiff = config.alwaysSaveDiff;
   }
 
   resolvePath(folderPath) {
@@ -110,6 +111,16 @@ class ResembleHelper extends Helper {
               this.debug(chalk.yellow`You have set createDiffInToleranceRange as true and your mismatch: ${data.misMatchPercentage} is not in tolerance: ${tolerance}`);
               this.debug(chalk.yellow`Diff Image File NOT Saved.`);
             }
+          }
+          if (this.alwaysSaveDiff === true) {
+            this.debug(`${chalk.bgMagenta('alwaysSaveDiff is set as true')}`);
+            this.debug(`${chalk.bgMagenta('Creating diff ...')}`);
+            if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
+              fs.mkdirSync(getDirName(this.diffFolder + diffImage));
+            }
+            fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
+            const diffImagePath = `${this.diffFolder + diffImage}.png`;
+            this.debug(`Diff Image File Saved to: ${diffImagePath}`);
           }
         }
       });
