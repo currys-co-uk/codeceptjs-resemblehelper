@@ -25,7 +25,8 @@ Example:
        "prepareBaseImage": true,
        "tolerance": 10,
        "skipFailure": true,
-       "createDiffInToleranceRange": true
+       "createDiffInToleranceRange": true,
+       "alwaysSaveDiff": true
      }
    }
 }
@@ -42,6 +43,11 @@ To use the Helper, users may provide the parameters:
 
  `tolerance`: Optional. When value is present, system sets tolerance for all tests, which does not have it set. Set tolerance in tests has always higher priority, than global tolerance in config.
 
+`skipFailure`: Optional. When `true` is set, Resemble helper continue in test run even in the case of detected mismatch and returns warning to console.
+
+`createDiffInToleranceRange`: Optional, when `true` is set, diff is created only if mismatch is in range of set tolerance (mismatch is not 0 but is less than tolerance).
+
+`alwaysSaveDiff`: Optional. When set as `true` diff image is created in every case.
 
 ### Usage
 
@@ -238,6 +244,21 @@ E.g.
 }
 ```
 Options tolerance is 5, and test result mismatch was 2,4. -> diff image is created.
+
+### alwaysSaveDiff flag for always generating diff images
+With set `alwaysSaveDiff` as `true` in config you can affect generating diff images, it covers all conditions and always returns generated diff image, doesn't matter if test passed or failed.
+E.g.
+```
+{
+   "helpers": {
+     "ResembleHelper" : {
+       ...
+       "alwaysSaveDiff": true
+       ...
+     }
+   }
+}
+```
 
 ### resemble.js Output Settings
 You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
