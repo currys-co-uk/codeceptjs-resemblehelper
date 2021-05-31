@@ -111,7 +111,8 @@ class ResembleHelper extends Helper {
               this.debug(chalk.yellow`You have set createDiffInToleranceRange as true and your mismatch: ${data.misMatchPercentage} is not in tolerance: ${tolerance}`);
               this.debug(chalk.yellow`Diff Image File NOT Saved.`);
             }
-          } if (this.alwaysSaveDiff === true) {
+          }
+          if (this.alwaysSaveDiff === true) {
             this.debug(`${chalk.bgMagenta('alwaysSaveDiff is set as true')}`);
             this.debug(`${chalk.bgMagenta('Creating diff ...')}`);
             if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
