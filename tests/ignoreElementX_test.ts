@@ -1,4 +1,3 @@
-//const DebugCatcher = require("../tools/debugCatcher");
 import DebugCatcher from '../tools/debugCatcher';
 
 Feature("IGNORE in seeVisualDiff() & seeVisualDiffForElement()");

@@ -123,7 +123,7 @@ class ResembleHelper extends Helper {
             reject(new Error(`The base image is of ${dimensions1.height} X ${dimensions1.width} and actual image is of ${dimensions2.height} X ${dimensions2.width}. Please use images of same dimensions so as to avoid any unexpected results.`));
           }
           resolve(data);
-          if (Number(data.misMatchPercentage) > tolerance && this.createDiffInToleranceRange !== true) {
+          if (Number(data.misMatchPercentage) >= tolerance && this.createDiffInToleranceRange !== true) {
             if (!fs.existsSync(getDirName(`${this.diffFolder}${diffImage}`))) {
               fs.mkdirSync(getDirName(`${this.diffFolder}${diffImage}`));
             }
