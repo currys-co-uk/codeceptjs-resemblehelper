@@ -6,31 +6,27 @@ const { setHeadlessWhen } = require('@codeceptjs/configure');
 setHeadlessWhen(process.env.HEADLESS);
 
 exports.config = {
-  tests: '../tests/prepareBaseImage-false_test.+(j|t)s',
+  tests: '../tests/ignoreElementX_test.+(j|t)s',
   output: '../output',
   helpers: {
     WebDriver: {
       url: 'http://localhost',
       host: 'selenoid',
       browser: 'chrome',
-      windowSize: '1200x800',
+      windowSize: '1100x800',
     },
     ResembleHelper: {
       require: '../index.ts',
       screenshotFolder: '../tests/output/',
       baseFolder: '../tests/screenshots/base/',
       diffFolder: '../tests/screenshots/diff/',
-      /*
-      prepareBaseImage = Optional. When true then the system replaces all of the baselines related to the test case(s) you ran.
-      This is equivalent of setting the option prepareBaseImage: true in all verifications of the test file.
-      */
-      prepareBaseImage: false,
     },
     AssertWrapper: {
       require: 'codeceptjs-assert',
     },
   },
-  include: {},
+  include: {
+  },
   bootstrap: null,
   mocha: {},
   name: 'codeceptjs-resemblehelper',

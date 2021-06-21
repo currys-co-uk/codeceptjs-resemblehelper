@@ -4,10 +4,16 @@ docker/
 tests/
 tools/
 .dockerignore
-.eslintrc.json
+.eslintignore
+.eslintrc.js
 .gitignore
 .releaserc
 browsers.json
+index.ts
 package-lock.json
 steps_file.js
 .git
+paths.js
+paths.d.ts
+steps.d.ts
+tsconfig.json

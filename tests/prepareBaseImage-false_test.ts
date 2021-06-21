@@ -1,4 +1,4 @@
-const DebugCatcher = require('../tools/debugCatcher');
+import DebugCatcher from '../tools/debugCatcher';
 
 Feature('Global set: prepareBaseImage: false');
 

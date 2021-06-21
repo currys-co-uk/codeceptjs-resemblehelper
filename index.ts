@@ -1,23 +1,58 @@
-const resemble = require('resemblejs');
-const fs = require('fs');
-const assert = require('assert');
-const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
-const AWS = require('aws-sdk');
-const path = require('path');
 const sizeOf = require('image-size');
-const chalk = require('chalk');
+const Helper = require('@codeceptjs/helper');
+//@ts-ignore
+import { ElementHandle } from 'playwright';
+import resemble from 'resemblejs';
+import fs from 'fs';
+import mkdirp from 'mkdirp';
+import AWS from 'aws-sdk';
+import path from 'path';
+import chalk from 'chalk';
 
+
+
+type Options = {
+  ignoredBox?: BoxCoordinates
+  ignoredBoxes?: BoxCoordinates[]
+  ignoredElement?: Selector;
+  ignoredElements?: Selector[];
+  ignoredQueryElementAll?: Selector;
+  prepareBaseImage?: boolean;
+  tolerance?: number;
+  skipFailure?: boolean;
+  boundingBox?: BoxCoordinates;
+  outputSettings?: GenericObject;
+} & resemble.ResembleSingleCallbackComparisonOptions;
+
+type Selector = string | { shadow: string | string[] } | { css: string } | CodeceptJS.LocatorOrString;
+
+type GenericObject = { [key: string]: any };
+
+type BoxCoordinates = { left: number, top: number, right: number, bottom: number };
+
+type CodeceptJSConfig = {
+  baseFolder: string
+  diffFolder: string
+  screenshotFolder: string
+  prepareBaseImage?: boolean
+  tolerance?: number
+  skipFailure?: boolean
+  createDiffInToleranceRange?: boolean
+  alwaysSaveDiff?: boolean
+};
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
- * @author Puneet Kala
+ * 
  */
 
 class ResembleHelper extends Helper {
-  constructor(config) {
+
+
+  public constructor(config: CodeceptJSConfig) {
     super(config);
-    this.baseFolder = this.resolvePath(config.baseFolder);
-    this.diffFolder = this.resolvePath(config.diffFolder);
+    this.baseFolder = this._resolvePath(config.baseFolder);
+    this.diffFolder = this._resolvePath(config.diffFolder);
     this.screenshotFolder = `${global.output_dir}/`;
     this.prepareBaseImage = config.prepareBaseImage;
     this.tolerance = config.tolerance;
@@ -26,7 +61,7 @@ class ResembleHelper extends Helper {
     this.alwaysSaveDiff = config.alwaysSaveDiff;
   }
 
-  resolvePath(folderPath) {
+  private _resolvePath(folderPath: string): string {
     if (!path.isAbsolute(folderPath)) {
       return `${path.resolve(global.codecept_dir, folderPath)}/`;
     }
@@ -41,9 +76,9 @@ class ResembleHelper extends Helper {
    * @param options
    * @returns {Promise<resolve | reject>}
    */
-  async _compareImages(image, diffImage, options) {
-    const baseImage = this.baseFolder + image;
-    const actualImage = this.screenshotFolder + image;
+  private async _compareImages(image: string, diffImage: string, options: Options): Promise<resemble.ResembleSingleCallbackComparisonResult> {
+    const baseImage = `${this.baseFolder}${image}`;
+    const actualImage = `${this.screenshotFolder}${image}`;
 
     // check whether the base and the screenshot images are present.
     fs.access(baseImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
@@ -76,36 +111,36 @@ class ResembleHelper extends Helper {
       });
 
       this.debug(`Tolerance Level Provided ${options.tolerance}`);
-      const tolerance = options.tolerance;
+      const tolerance = options.tolerance!;
 
       resemble.compare(baseImage, actualImage, options, (err, data) => {
         if (err) {
           reject(err);
         } else {
           if (!data.isSameDimensions) {
-            let dimensions1 = sizeOf(baseImage);
-            let dimensions2 = sizeOf(actualImage);
+            const dimensions1 = sizeOf(baseImage);
+            const dimensions2 = sizeOf(actualImage);
             reject(new Error(`The base image is of ${dimensions1.height} X ${dimensions1.width} and actual image is of ${dimensions2.height} X ${dimensions2.width}. Please use images of same dimensions so as to avoid any unexpected results.`));
           }
           resolve(data);
-          if (data.misMatchPercentage >= tolerance && this.createDiffInToleranceRange !== true) {
-            if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
-              fs.mkdirSync(getDirName(this.diffFolder + diffImage));
+          if (Number(data.misMatchPercentage) > tolerance && this.createDiffInToleranceRange !== true) {
+            if (!fs.existsSync(getDirName(`${this.diffFolder}${diffImage}`))) {
+              fs.mkdirSync(getDirName(`${this.diffFolder}${diffImage}`));
             }
-            fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
-            const diffImagePath = `${this.diffFolder + diffImage}.png`;
+            fs.writeFileSync(`${this.diffFolder}${diffImage}.png`, data.getBuffer());
+            const diffImagePath = `${this.diffFolder}${diffImage}.png`;
             this.debug(`Diff Image File Saved to: ${diffImagePath}`);
           }
           if (this.createDiffInToleranceRange === true) {
-            if (data.misMatchPercentage > 0 && data.misMatchPercentage <= tolerance) {
+            if (Number(data.misMatchPercentage) > 0 && Number(data.misMatchPercentage) <= tolerance) {
               this.debug(`${chalk.yellow('createDiffInToleranceRange is set as true and met conditions')}`);
               this.debug(chalk.yellow`Mismatch percentage: "${data.misMatchPercentage}" is less or equal than tolerance: ${tolerance}`);
               this.debug(`${chalk.yellow('Creating diff ...')}`);
-              if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
-                fs.mkdirSync(getDirName(this.diffFolder + diffImage));
+              if (!fs.existsSync(getDirName(`${this.diffFolder}${diffImage}`))) {
+                fs.mkdirSync(getDirName(`${this.diffFolder}${diffImage}`));
               }
-              fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
-              const diffImagePath = `${this.diffFolder + diffImage}.png`;
+              fs.writeFileSync(`${this.diffFolder}${diffImage}.png`, data.getBuffer());
+              const diffImagePath = `${this.diffFolder}${diffImage}.png`;
               this.debug(`Diff Image File Saved to: ${diffImagePath}`);
             } else {
               this.debug(chalk.yellow`You have set createDiffInToleranceRange as true and your mismatch: ${data.misMatchPercentage} is not in tolerance: ${tolerance}`);
@@ -115,11 +150,11 @@ class ResembleHelper extends Helper {
           if (this.alwaysSaveDiff === true) {
             this.debug(`${chalk.bgMagenta('alwaysSaveDiff is set as true')}`);
             this.debug(`${chalk.bgMagenta('Creating diff ...')}`);
-            if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
-              fs.mkdirSync(getDirName(this.diffFolder + diffImage));
+            if (!fs.existsSync(getDirName(`${this.diffFolder}${diffImage}`))) {
+              fs.mkdirSync(getDirName(`${this.diffFolder}${diffImage}`));
             }
-            fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
-            const diffImagePath = `${this.diffFolder + diffImage}.png`;
+            fs.writeFileSync(`${this.diffFolder}${diffImage}.png`, data.getBuffer());
+            const diffImagePath = `${this.diffFolder}${diffImage}.png`;
             this.debug(`Diff Image File Saved to: ${diffImagePath}`);
           }
         }
@@ -129,10 +164,10 @@ class ResembleHelper extends Helper {
 
   /**
    * Get actual date and time in format MMMM-MM-MMTHH:MM:SS
-   * @returns <void>
+   * @returns string
    */
-  _getTimestamp() {
-    let now = new Date();
+  private _getTimestamp(): string {
+    const now = new Date();
     return now.toISOString().slice(0, 19).replace(/:/g, '_');
   }
 
@@ -142,11 +177,11 @@ class ResembleHelper extends Helper {
    * @param options
    * @returns {Promise<*>}
    */
-  async _fetchMisMatchPercentage(image, options, timestamp) {
+  private async _fetchMisMatchPercentage(image: string, options: Options, timestamp: string): Promise<number> {
     const diffImage = `Diff_${image.split('.')[0]}_${timestamp}`;
     const result = this._compareImages(image, diffImage, options);
     const data = await Promise.resolve(result);
-    return data.misMatchPercentage;
+    return Number(data.misMatchPercentage);
   }
 
   /**
@@ -155,27 +190,27 @@ class ResembleHelper extends Helper {
    * @param name name of the image
    * @returns {Promise<void>}
    */
-  async screenshotElement(selector, name) {
+  async screenshotElement(selector: Selector, name: string): Promise<void> {
     const helper = this._getHelper();
-    if (this.helpers['Puppeteer'] || this.helpers['Playwright']) {
+    if (this.helpers.Puppeteer || this.helpers.Playwright) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
       await el.screenshot({ path: `${global.output_dir}/${name}` });
-    } else if (this.helpers['WebDriver']) {
+    } else if (this.helpers.WebDriver) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
-      await el.saveScreenshot(`${this.screenshotFolder + name}`);
-    } else if (this.helpers['TestCafe']) {
+      await el.saveScreenshot(`${this.screenshotFolder}${name}`);
+    } else if (this.helpers.TestCafe) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!await els.count) throw new Error(`Element ${selector} couldn't be located`);
-      const { t } = this.helpers['TestCafe'];
+      const { t } = this.helpers.TestCafe;
 
       await t.takeElementScreenshot(els, name);
     } else throw new Error('Method only works with Playwright, Puppeteer, WebDriver or TestCafe helpers.');
@@ -189,14 +224,14 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void>}
    */
 
-  async _addAttachment(baseImage, misMatch, tolerance, timestamp) {
+  private async _addAttachment(baseImage: string, misMatch: number, tolerance: number, timestamp: string): Promise<void> {
     const allure = codeceptjs.container.plugins('allure');
     const diffImage = `Diff_${baseImage.split('.')[0]}_${timestamp}.png`;
 
     if (allure !== undefined && misMatch >= tolerance) {
-      allure.addAttachment('Base Image', fs.readFileSync(this.baseFolder + baseImage), 'image/png');
-      allure.addAttachment('Screenshot Image', fs.readFileSync(this.screenshotFolder + baseImage), 'image/png');
-      allure.addAttachment('Diff Image', fs.readFileSync(this.diffFolder + diffImage), 'image/png');
+      await allure.addAttachment('Base Image', fs.readFileSync(`${this.baseFolder}${baseImage}`), 'image/png');
+      await allure.addAttachment('Screenshot Image', fs.readFileSync(`${this.screenshotFolder}${baseImage}`), 'image/png');
+      await allure.addAttachment('Diff Image', fs.readFileSync(`${this.diffFolder}${diffImage}`), 'image/png');
     }
   }
 
@@ -208,17 +243,17 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void>}
    */
 
-  async _addMochaContext(baseImage, misMatch, tolerance) {
-    const mocha = this.helpers['Mochawesome'];
+  private async _addMochaContext(baseImage: string, misMatch: number, tolerance: number): Promise<void> {
+    const mocha = this.helpers.Mochawesome;
     const diffImage = `Diff_${baseImage.split('.')[0]}.png`;
 
     if (mocha !== undefined && misMatch >= tolerance) {
       await mocha.addMochawesomeContext('Base Image');
-      await mocha.addMochawesomeContext(this.baseFolder + baseImage);
+      await mocha.addMochawesomeContext(`${this.baseFolder}${baseImage}`);
       await mocha.addMochawesomeContext('ScreenShot Image');
-      await mocha.addMochawesomeContext(this.screenshotFolder + baseImage);
+      await mocha.addMochawesomeContext(`${this.screenshotFolder}${baseImage}`);
       await mocha.addMochawesomeContext('Diff Image');
-      await mocha.addMochawesomeContext(this.diffFolder + diffImage);
+      await mocha.addMochawesomeContext(`${this.diffFolder}${diffImage}`);
     }
   }
 
@@ -234,17 +269,16 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void>}
    */
 
-  async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, ifBaseImage) {
+  private async _upload(accessKeyId: string, secretAccessKey: string, region: string, bucketName: string, baseImage: string, ifBaseImage: boolean): Promise<void> {
     console.log('Starting Upload... ');
     const s3 = new AWS.S3({
-      accessKeyId: accessKeyId,
-      secretAccessKey: secretAccessKey,
-      region: region,
+      accessKeyId,
+      secretAccessKey,
+      region,
     });
-    fs.readFile(this.screenshotFolder + baseImage, (err, data) => {
+    fs.readFile(`${this.screenshotFolder}${baseImage}`, { encoding: 'base64' }, (err, base64data) => {
       if (err) throw err;
-      let base64data = new Buffer(data, 'binary');
-      const params = {
+      const params: AWS.S3.Types.PutObjectRequest = {
         Bucket: bucketName,
         Key: `output/${baseImage}`,
         Body: base64data,
@@ -254,11 +288,10 @@ class ResembleHelper extends Helper {
         console.log(`Screenshot Image uploaded successfully at ${uData.Location}`);
       });
     });
-    fs.readFile(`${this.diffFolder}Diff_${baseImage}`, (err, data) => {
+    fs.readFile(`${this.diffFolder}Diff_${baseImage}`, { encoding: 'base64' }, (err, base64data) => {
       if (err) console.log('Diff image not generated');
       else {
-        let base64data = new Buffer(data, 'binary');
-        const params = {
+        const params: AWS.S3.Types.PutObjectRequest = {
           Bucket: bucketName,
           Key: `diff/Diff_${baseImage}`,
           Body: base64data,
@@ -270,11 +303,10 @@ class ResembleHelper extends Helper {
       }
     });
     if (ifBaseImage) {
-      fs.readFile(this.baseFolder + baseImage, (err, data) => {
+      fs.readFile(`${this.baseFolder}${baseImage}`, { encoding: 'base64' }, (err, base64data) => {
         if (err) throw err;
         else {
-          let base64data = new Buffer(data, 'binary');
-          const params = {
+          const params: AWS.S3.Types.PutObjectRequest = {
             Bucket: bucketName,
             Key: `base/${baseImage}`,
             Body: base64data,
@@ -300,22 +332,22 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void>}
    */
 
-  _download(accessKeyId, secretAccessKey, region, bucketName, baseImage) {
+  private _download(accessKeyId: string, secretAccessKey: string, region: string, bucketName: string, baseImage: string): Promise<string> {
     console.log('Starting Download...');
     const s3 = new AWS.S3({
-      accessKeyId: accessKeyId,
-      secretAccessKey: secretAccessKey,
-      region: region,
+      accessKeyId,
+      secretAccessKey,
+      region,
     });
-    const params = {
+    const params: AWS.S3.Types.GetObjectRequest = {
       Bucket: bucketName,
       Key: `base/${baseImage}`,
     };
     return new Promise((resolve) => {
       s3.getObject(params, (err, data) => {
         if (err) console.error(err);
-        console.log(this.baseFolder + baseImage);
-        fs.writeFileSync(this.baseFolder + baseImage, data.Body);
+        console.log(`${this.baseFolder}${baseImage}`);
+        fs.writeFileSync(`${this.baseFolder}${baseImage}`, data.Body as string);
         resolve('File Downloaded Successfully');
       });
     });
@@ -327,7 +359,7 @@ class ResembleHelper extends Helper {
    * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<void>}
    */
-  async seeVisualDiff(baseImage, options = undefined) {
+  public async seeVisualDiff(baseImage: string, options?: Options): Promise<void> {
     await this._assertVisualDiff(undefined, baseImage, options);
   }
 
@@ -339,11 +371,11 @@ class ResembleHelper extends Helper {
    * @param options    Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<void>}
    */
-  async seeVisualDiffForElement(selector, baseImage, options = undefined) {
+  public async seeVisualDiffForElement(selector: Selector, baseImage: string, options?: Options): Promise<void> {
     await this._assertVisualDiff(selector, baseImage, options);
   }
 
-  async _assertVisualDiff(selector, baseImage, options = undefined) {
+  private async _assertVisualDiff(selector: undefined | Selector, baseImage: string, options?: Options): Promise<void> {
     if (!options) {
       options = {};
     }
@@ -383,32 +415,20 @@ class ResembleHelper extends Helper {
     }
 
     if ((this.prepareBaseImage === true && options.prepareBaseImage === undefined)
-    || (options.prepareBaseImage === true)
-    || (this.prepareBaseImage === undefined && options.prepareBaseImage === undefined)) {
+      || (options.prepareBaseImage === true)
+      || (this.prepareBaseImage === undefined && options.prepareBaseImage === undefined)) {
       await this._prepareBaseImage(baseImage, options);
     }
 
     if (selector) {
       if (options.ignoredElement) {
-        const myBoundingBox = await this._getBoundingBox(selector);
-        // TODO will be refactored while upgrade to typescript with unify types for all types of ignoreXX
-        const ignoredLeft = options.ignoredBox.left - myBoundingBox.left;
-        const ignoredTop = options.ignoredBox.top - myBoundingBox.top;
-        const ignoredRight = options.ignoredBox.right - myBoundingBox.left;
-        const ignoredBottom = options.ignoredBox.bottom - myBoundingBox.top;
-
-        options.ignoredBox = {
-          left: ignoredLeft,
-          top: ignoredTop,
-          right: ignoredRight,
-          bottom: ignoredBottom,
-        };
+    
+        options.ignoredBox = (await this._reCountElementCoordinatesForIgnoreInScreenshotElement(selector, [options.ignoredBox!]))[0];
         this.debug(`You ignore one element in screenshotted element "${selector}" ...`);
         this.debug(`Element coordinates were recounted to element screenshotted size as: ${JSON.stringify(options.ignoredBox)}`);
       }
-
-      if (options.ignoredElements || options.ignoredQueryElementAll) {
-        options.ignoredBoxes = await this._reCountElementCoordinatesForIgnoreInScreenshotElement(selector, options.ignoredBoxes);
+      else if (options.ignoredElements || options.ignoredQueryElementAll) {
+        options.ignoredBoxes = await this._reCountElementCoordinatesForIgnoreInScreenshotElement(selector, options.ignoredBoxes!);
         this.debug(`You ignore more elements in screenshotted element "${selector}" ...`);
         this.debug(`Element coordinates were recounted to element screenshotted size as: ${JSON.stringify(options.ignoredBoxes)}`);
       } else {
@@ -422,15 +442,17 @@ class ResembleHelper extends Helper {
     await this._addAttachment(baseImage, misMatch, options.tolerance, imageTimestamp);
     await this._addMochaContext(baseImage, misMatch, options.tolerance);
     if (awsC !== undefined) {
-      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage);
+      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage!);
     }
 
     this.debug(`MisMatch Percentage Calculated is ${misMatch} for baseline ${baseImage}`);
 
     if (!options.skipFailure) {
-      assert(misMatch <= options.tolerance, `Screenshot does not match with the baseline ${baseImage} when MissMatch Percentage is ${misMatch}`);
+      if (misMatch > options.tolerance) {
+        throw new Error(`Screenshot does not match with the baseline ${baseImage} when MissMatch Percentage is ${misMatch}`);
+      }
     }
-    if ((options.skipFailure === true) && (misMatch >= options.tolerance)) {
+    if ((options.skipFailure === true) && (misMatch > options.tolerance)) {
       console.log(`${chalk.red.bgYellowBright.bold('--------------- WARNING ---------------')}`);
       console.log(chalk.red.bgYellowBright.bold`You have set "skipFailure: true"`);
       console.log(chalk.red.bgYellowBright.bold`Your baseline "${baseImage}" MissMatch Percentage is ${misMatch}`);
@@ -444,13 +466,13 @@ class ResembleHelper extends Helper {
    * @param screenShotImage  Name of the screenshot Image (Screenshot Image Path is taken from Configuration)
    * @param options Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    */
-  async _prepareBaseImage(screenShotImage, options) {
-    await this._createDir(this.baseFolder + screenShotImage);
+  private async _prepareBaseImage(screenShotImage: string, options: Options): Promise<void> {
+    await this._createDir(`${this.baseFolder}${screenShotImage}`);
 
-    fs.access(this.screenshotFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(`${this.screenshotFolder}${screenShotImage}`, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${this.screenshotFolder + screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`,
+          `${this.screenshotFolder}${screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`,
         );
       }
     });
@@ -464,25 +486,27 @@ class ResembleHelper extends Helper {
     });
 
     try {
-      await fs.promises.access(this.baseFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK);
+      await fs.promises.access(`${this.baseFolder}${screenShotImage}`, fs.constants.F_OK | fs.constants.W_OK);
 
       if (options.prepareBaseImage === true) {
         this.debug('Test option is set as: prepareBaseImage = true');
         this.debug('Creating base image ...');
-        fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+        fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
         this.debug(`Base image: ${screenShotImage} is created.`);
-      } else if (this.prepareBaseImage === true && options.prepareBaseImage === undefined) {
+      } 
+      else if (this.prepareBaseImage === true && options.prepareBaseImage === undefined) {
         this.debug('Global config is set as: prepareBaseImage = true');
         this.debug('Creating base image ...');
-        fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+        fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
         this.debug(`Base image: ${screenShotImage} is created.`);
-      } else {
+      } 
+      else {
         this.debug(`Found existing base image: ${screenShotImage} and use it for compare.`);
       }
     } catch (e) {
       this.debug(`Existing base image with name ${screenShotImage} was not found.`);
       this.debug('Creating base image ...');
-      fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+      fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
       this.debug(`Base image: ${screenShotImage} is created.`);
     }
   }
@@ -493,7 +517,7 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void>}
    * @private
    */
-  _createDir(directory) {
+  private _createDir(directory: string): void {
     mkdirp.sync(getDirName(directory));
   }
 
@@ -504,7 +528,7 @@ class ResembleHelper extends Helper {
    * @param pathToFile string
    * @returns {Promise<void>}
    */
-  async deleteScreenshot(pathToFile) {
+  public async deleteScreenshot(pathToFile: string): Promise<void> {
     fs.unlink(pathToFile, (err) => {
       if (err && err.code === 'ENOENT') {
         console.info(`Current directory: " ${process.cwd()}`);
@@ -523,34 +547,30 @@ class ResembleHelper extends Helper {
    * @param selector CSS|XPath|ID selector
    * @returns {Promise<{boundingBox: {left: *, top: *, right: *, bottom: *}}>}
    */
-  async _getBoundingBox(selector) {
+  private async _getBoundingBox(selector: Selector): Promise<BoxCoordinates> {
     const helper = this._getHelper();
     await helper.waitForVisible(selector);
     const els = await helper._locate(selector);
 
-    if (this.helpers['TestCafe']) {
+    if (this.helpers.TestCafe) {
       if (await els.count !== 1) throw new Error(`Element ${selector} couldn't be located or isn't unique on the page`);
     } else if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
 
     let location; let size;
 
-    if (this.helpers['Puppeteer'] || this.helpers['Playwright']) {
+    if (this.helpers.Puppeteer || this.helpers.Playwright) {
       const el = els[0];
       const box = await el.boundingBox();
       size = location = box;
     }
 
-    if (this.helpers['WebDriver'] || this.helpers['Appium']) {
+    if (this.helpers.WebDriver || this.helpers.Appium) {
       const el = els[0];
       location = await el.getLocation();
       size = await el.getSize();
     }
 
-    if (this.helpers['WebDriverIO']) {
-      location = await helper.browser.getLocation(selector);
-      size = await helper.browser.getElementSize(selector);
-    }
-    if (this.helpers['TestCafe']) {
+    if (this.helpers.TestCafe) {
       return await els.boundingClientRect;
     }
 
@@ -563,11 +583,11 @@ class ResembleHelper extends Helper {
     const boundingBox = {
       left: location.x,
       top: location.y,
-      right: right,
-      bottom: bottom,
+      right,
+      bottom,
     };
 
-    this.debugSection(`Area for selector ${selector}`, JSON.stringify(boundingBox));
+    this.debug(`Area for selector ${selector} ${JSON.stringify(boundingBox)}`);
 
     return boundingBox;
   }
@@ -578,7 +598,7 @@ class ResembleHelper extends Helper {
    * @param selector CSS|XPath|ID selector
    * @returns {Promise<{ignoredBox: {left: *, top: *, right: *, bottom: *}}>}
    */
-  async _getElementCoordinates(selector) {
+  private async _getElementCoordinates(selector: Selector): Promise<BoxCoordinates> {
     const helper = this._getHelper();
     await helper.waitForVisible(selector);
     const els = await helper._locate(selector);
@@ -593,7 +613,7 @@ class ResembleHelper extends Helper {
    * @param ignoredElementsCoordinates Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
    */
-  async _reCountElementCoordinatesForIgnoreInScreenshotElement(selector, ignoredElementsCoordinates) {
+  private async _reCountElementCoordinatesForIgnoreInScreenshotElement(selector: Selector, ignoredElementsCoordinates: BoxCoordinates[]): Promise<BoxCoordinates[]> {
     const boundingBox = await this._getBoundingBox(selector);
 
     ignoredElementsCoordinates = ignoredElementsCoordinates.map((elementCoordinates) => {
@@ -603,10 +623,10 @@ class ResembleHelper extends Helper {
       const bottom = elementCoordinates.bottom - boundingBox.top;
 
       return {
-        left: left,
-        top: top,
-        right: right,
-        bottom: bottom,
+        left,
+        top,
+        right,
+        bottom,
       };
     });
 
@@ -619,7 +639,7 @@ class ResembleHelper extends Helper {
    * @param options Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
    */
-  async _getIgnoredBoxesFromElements(options) {
+  private async _getIgnoredBoxesFromElements(options: Selector[]): Promise<BoxCoordinates[]> {
     return await Promise.all(options.map(async (item) => await this._getElementCoordinates(item)));
   }
 
@@ -630,16 +650,16 @@ class ResembleHelper extends Helper {
    * @param selector represents counted element in human language
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
    */
-  async _countCoordinates(el, selector) {
+  private async _countCoordinates(el: WebdriverIO.Element | ElementHandle, selector: Selector): Promise<BoxCoordinates> {
     const helper = this._getHelper();
     let location; let size;
 
-    if (this.helpers['WebDriver'] || this.helpers['Appium']) {
+    if (this.helpers.WebDriver || this.helpers.Appium) {
       location = await el.getLocation();
       size = await el.getSize();
     }
 
-    if (this.helpers['Puppeteer'] || this.helpers['Playwright']) {
+    if (this.helpers.Puppeteer || this.helpers.Playwright) {
       const box = await el.boundingBox();
       size = location = box;
     }
@@ -655,13 +675,13 @@ class ResembleHelper extends Helper {
     const left = location.x - scrollOffset.X;
     const top = location.y - scrollOffset.Y;
     const ignoredBox = {
-      left: left,
-      top: top,
-      right: right,
-      bottom: bottom,
+      left,
+      top,
+      right,
+      bottom,
     };
 
-    this.debug(`Element: "${JSON.stringify(selector)}" has coordinates: ${JSON.stringify(ignoredBox)}`);
+    this.debug(`Element: ${JSON.stringify(selector)} has coordinates: ${JSON.stringify(ignoredBox)}`);
     this.debug(`Browser screen was scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(scrollOffset.X)}" px horizontal.`);
 
     return ignoredBox;
@@ -673,36 +693,33 @@ class ResembleHelper extends Helper {
    * @param selector CSS|XPath|ID selector
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
    */
-  async _locateAll(selector) {
-    const browser = this.helpers['WebDriver'] || this.helpers['Playwright'];
-    const els = await browser._locate(selector);
+  private async _locateAll(selector: Selector): Promise<BoxCoordinates[]> {
+    const browser = this.helpers.WebDriver || this.helpers.Playwright;
+    const els: WebdriverIO.ElementArray = await browser._locate(selector);
     return await Promise.all(els.map(async (item) => await this._countCoordinates(item, selector)));
   }
 
-  _getHelper() {
-    if (this.helpers['Puppeteer']) {
-      return this.helpers['Puppeteer'];
+  private _getHelper(): GenericObject {
+    if (this.helpers.Puppeteer) {
+      return this.helpers.Puppeteer;
     }
 
-    if (this.helpers['WebDriver']) {
-      return this.helpers['WebDriver'];
+    if (this.helpers.WebDriver) {
+      return this.helpers.WebDriver;
     }
-    if (this.helpers['Appium']) {
-      return this.helpers['Appium'];
+    if (this.helpers.Appium) {
+      return this.helpers.Appium;
     }
-    if (this.helpers['WebDriverIO']) {
-      return this.helpers['WebDriverIO'];
-    }
-    if (this.helpers['TestCafe']) {
-      return this.helpers['TestCafe'];
+    if (this.helpers.TestCafe) {
+      return this.helpers.TestCafe;
     }
 
-    if (this.helpers['Playwright']) {
-      return this.helpers['Playwright'];
+    if (this.helpers.Playwright) {
+      return this.helpers.Playwright;
     }
 
     throw new Error('No matching helper found. Supported helpers: Playwright/WebDriver/Appium/Puppeteer/TestCafe');
   }
 }
 
-module.exports = ResembleHelper;
+export = ResembleHelper;

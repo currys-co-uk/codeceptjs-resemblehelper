@@ -1,3 +1,4 @@
+require('ts-node/register');
 const { setHeadlessWhen } = require('@codeceptjs/configure');
 
 // turn on headless mode when running with HEADLESS=true environment variable
@@ -5,7 +6,7 @@ const { setHeadlessWhen } = require('@codeceptjs/configure');
 setHeadlessWhen(process.env.HEADLESS);
 
 exports.config = {
-  tests: '../tests/prepareBaseImage-undefined_test.js',
+  tests: '../tests/prepareBaseImage-undefined_test.+(j|t)s',
   output: '../output',
   helpers: {
     WebDriver: {
@@ -15,7 +16,7 @@ exports.config = {
       windowSize: '1200x800',
     },
     ResembleHelper: {
-      require: '../index',
+      require: '../index.ts',
       screenshotFolder: '../tests/output/',
       baseFolder: '../tests/screenshots/base/',
       diffFolder: '../tests/screenshots/diff/',
@@ -24,9 +25,7 @@ exports.config = {
       require: 'codeceptjs-assert',
     },
   },
-  include: {
-    I: '../steps_file.js',
-  },
+  include: {},
   bootstrap: null,
   mocha: {},
   name: 'codeceptjs-resemblehelper',

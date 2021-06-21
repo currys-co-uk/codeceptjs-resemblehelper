@@ -1,15 +1,17 @@
 const Helper = require('@codeceptjs/helper');
 
-class DebugCatcher {
+
+export default class DebugCatcher {
+  public messages = '';
+
   constructor() {
-    this.messages = '';
+   
     const orig = Helper.prototype.debug;
 
-    Helper.prototype.debug = (msg) => {
+    Helper.prototype.debug = (msg: string) => {
       this.messages += `${msg}\n`;
       orig(msg);
     };
   }
 }
 
-module.exports = DebugCatcher;
