@@ -1,0 +1,13 @@
+name: ESLint
+
+on: push
+
+jobs:
+  release:
+    name: ESLint
+    runs-on: ubuntu-latest
+    container: 'node:lts-buster'
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm ci
+      - run: npm run lint

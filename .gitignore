@@ -72,3 +72,11 @@ typings/
 
 # Ignore auto-generated types
 index.d.ts
+/tests/*.d.ts
+/tools/*.d.ts
+paths.d.ts
+
+# Ignore auto-generated javascript files
+index.js
+/tests/*.js
+/tools/*.js
