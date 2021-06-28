@@ -61,7 +61,7 @@ Scenario(
     I.saveScreenshot('1.png');
     await I.seeVisualDiff('1.png', { prepareBaseImage: false });
     const messageOutput = debugCatcher.messages;
-    I.assertStringIncludes(messageOutput, 'Diff Image File Saved');
+    I.assertStringIncludes(messageOutput, 'MisMatch Percentage Calculated is 0 for baseline 1.png');
   },
 );
 
