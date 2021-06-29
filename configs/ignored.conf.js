@@ -6,7 +6,7 @@ const { setHeadlessWhen } = require('@codeceptjs/configure');
 setHeadlessWhen(process.env.HEADLESS);
 
 exports.config = {
-  tests: '../tests/ignoreElementX_test.+(j|t)s',
+  tests: '../tests/ignoreElementX_test.ts',
   output: '../output',
   helpers: {
     WebDriver: {

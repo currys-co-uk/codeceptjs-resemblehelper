@@ -3,7 +3,7 @@ import DebugCatcher from '../tools/debugCatcher';
 Feature("IGNORE in seeVisualDiff() & seeVisualDiffForElement()");
 
 Scenario(
-  '{ignoredElement: "[href*="/dropdown"]"} in seeVisualDiff()',
+  'in seeVisualDiff(): {ignoredElement: "[href*="/dropdown"]"}',
   async ({ I }) => {
     I.say("element counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
@@ -27,7 +27,7 @@ Scenario(
 );
 
 Scenario(
-  '{ ignoredElements: ["#hot-spot", "#page-footer"] } in seeVisualDiff()',
+  'in seeVisualDiff(): { ignoredElements: ["#hot-spot", "#page-footer"] }',
   async ({ I }) => {
     I.say("element counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
@@ -58,7 +58,7 @@ Scenario(
 );
 
 Scenario(
-  ' "{ ignoredQueryElementAll: "p" }" in seeVisualDiff()',
+  'in seeVisualDiff(): "{ ignoredQueryElementAll: "p" }"',
   async ({ I }) => {
     I.say("elements counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
@@ -85,7 +85,7 @@ Scenario(
 );
 
 Scenario(
-  ' "{ ignoredElement: { shadow: ["my-paragraph"] } }" in seeVisualDiff()',
+  'in seeVisualDiff(): "{ ignoredElement: { shadow: ["my-paragraph"] } }"',
   async ({ I }) => {
     I.say("elements counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
@@ -108,7 +108,7 @@ Scenario(
 );
 
 Scenario(
-  '  { ignoredElements: [{ shadow: ["my-paragraph"] }, { shadow: ["my-paragraph", "slot"] }] } in seeVisualDiff()',
+  'in seeVisualDiff(): { ignoredElements: [{ shadow: ["my-paragraph"] }, { shadow: ["my-paragraph", "slot"] }] }',
   async ({ I }) => {
     I.say("elements counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
@@ -142,7 +142,7 @@ Scenario(
 );
 
 Scenario(
-  ' { ignoredQueryElementAll: { shadow: ["my-paragraph"] } in seeVisualDiff()',
+  'in seeVisualDiff(): { ignoredQueryElementAll: { shadow: ["my-paragraph"] }',
   async ({ I }) => {
     I.say("elements counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
@@ -174,7 +174,7 @@ Scenario(
 );
 
 Scenario(
-  '{ ignoredElement: "#hot-spot" } in seeVisualDiffForElement()',
+  'in seeVisualDiffForElement(): { ignoredElement: "#hot-spot" }',
   async ({ I }) => {
     I.say("elements counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
@@ -210,7 +210,7 @@ Scenario(
 );
 
 Scenario(
-  ' { ignoredElements: [".large-2", "div.row:nth-of-type(3)"] } in seeVisualDiffForElement()',
+  'in seeVisualDiffForElement(): { ignoredElements: [".large-2", "div.row:nth-of-type(3)"] }',
   async ({ I }) => {
     I.say("elements counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
@@ -255,7 +255,7 @@ Scenario(
 );
 
 Scenario(
-  '{ ignoredQueryElementAll: ".large-2" } in seeVisualDiffForElement()',
+  'in seeVisualDiffForElement(): { ignoredQueryElementAll: ".large-2" }',
   async ({ I }) => {
     I.say("elements counted coordinates are correct");
     const debugCatcher = new DebugCatcher();
