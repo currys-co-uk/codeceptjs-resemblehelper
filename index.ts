@@ -228,7 +228,7 @@ class ResembleHelper extends Helper {
     const allure = codeceptjs.container.plugins('allure');
     const diffImage = `Diff_${baseImage.split('.')[0]}_${timestamp}.png`;
 
-    if (allure !== undefined && misMatch >= tolerance) {
+    if (allure !== undefined && misMatch > tolerance) {
       await allure.addAttachment('Base Image', fs.readFileSync(`${this.baseFolder}${baseImage}`), 'image/png');
       await allure.addAttachment('Screenshot Image', fs.readFileSync(`${this.screenshotFolder}${baseImage}`), 'image/png');
       await allure.addAttachment('Diff Image', fs.readFileSync(`${this.diffFolder}${diffImage}`), 'image/png');
@@ -247,7 +247,7 @@ class ResembleHelper extends Helper {
     const mocha = this.helpers.Mochawesome;
     const diffImage = `Diff_${baseImage.split('.')[0]}.png`;
 
-    if (mocha !== undefined && misMatch >= tolerance) {
+    if (mocha !== undefined && misMatch > tolerance) {
       await mocha.addMochawesomeContext('Base Image');
       await mocha.addMochawesomeContext(`${this.baseFolder}${baseImage}`);
       await mocha.addMochawesomeContext('ScreenShot Image');
