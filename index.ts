@@ -634,8 +634,8 @@ class ResembleHelper extends Helper {
       };
     });
 
-    if (scrollOffset.X || scrollOffset.Y){
-    this.debug(`Screenshotted element was in test scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(scrollOffset.X)}" px horizontal.`);
+    if (scrollOffset.X || scrollOffset.Y) {
+      this.debug(`Screenshotted element was in test scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(scrollOffset.X)}" px horizontal.`);
     }
 
     return ignoredElementsCoordinates;
