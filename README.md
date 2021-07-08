@@ -104,7 +104,7 @@ Scenario('Open the System Overview Dashboard', async (I, adminPage, loginPage) =
 
 Scenario('Compare CPU Usage Images', async (I) => {
 
-    // setting tolerance and prepareBaseImage in the options array
+    // setting tolerance and prepareBaseImage in the options object
     I.seeVisualDiff("Complete_Metric_Image.png", {prepareBaseImage: false, tolerance: 5});
 
     // passing a selector, to only compare that element on both the images now

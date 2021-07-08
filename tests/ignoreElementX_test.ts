@@ -304,3 +304,28 @@ Scenario(
     );
   }
 );
+
+
+
+Scenario('seeVisualDiffForElement() with scrolled page 222px vertically', async ({ I }) => {
+
+  I.say("element counted coordinates are correct");
+  const debugCatcher = new DebugCatcher();
+
+  I.amOnPage("https://the-internet.herokuapp.com");
+  I.scrollTo('[href="/add_remove_elements/"]'); // 222px
+  await I.screenshotElement('#content', "elementInElementScrolled.png");
+  await I.seeVisualDiffForElement('#content', "elementInElementScrolled.png", {
+    ignoredElement: '[href="/dropdown"]',
+  });
+
+  const messageOutput = debugCatcher.messages;
+  I.assertStringIncludes(
+    messageOutput,
+    'Browser screen was scrolled "222" px vertically and "0" px horizontal.'
+  );
+  I.assertStringIncludes(messageOutput, 'Screenshotted element was in test scrolled "222" px vertically and "0" px horizontal.');
+  I.assertStringIncludes(messageOutput, 'Element coordinates were recounted to element screenshotted size as: {"left":15,"top":415.296875,"right":88,"bottom":432.296875}');
+
+}
+);

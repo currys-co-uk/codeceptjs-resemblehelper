@@ -614,13 +614,17 @@ class ResembleHelper extends Helper {
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
    */
   private async _reCountElementCoordinatesForIgnoreInScreenshotElement(selector: Selector, ignoredElementsCoordinates: BoxCoordinates[]): Promise<BoxCoordinates[]> {
+    const helper = this._getHelper();
     const boundingBox = await this._getBoundingBox(selector);
 
+    const scrollOffset = await helper.executeScript(() => ({ X: window.pageXOffset, Y: window.pageYOffset }));
+
     ignoredElementsCoordinates = ignoredElementsCoordinates.map((elementCoordinates) => {
-      const left = elementCoordinates.left - boundingBox.left;
-      const top = elementCoordinates.top - boundingBox.top;
-      const right = elementCoordinates.right - boundingBox.left;
-      const bottom = elementCoordinates.bottom - boundingBox.top;
+
+      const left = elementCoordinates.left - boundingBox.left + scrollOffset.X;
+      const top = elementCoordinates.top - boundingBox.top + scrollOffset.Y;
+      const right = elementCoordinates.right - boundingBox.left + scrollOffset.X;
+      const bottom = elementCoordinates.bottom - boundingBox.top + scrollOffset.Y;
 
       return {
         left,
@@ -629,6 +633,10 @@ class ResembleHelper extends Helper {
         bottom,
       };
     });
+
+    if (scrollOffset.X || scrollOffset.Y) {
+      this.debug(`Screenshotted element was in test scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(scrollOffset.X)}" px horizontal.`);
+    }
 
     return ignoredElementsCoordinates;
   }
