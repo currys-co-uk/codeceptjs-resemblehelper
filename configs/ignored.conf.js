@@ -25,8 +25,7 @@ exports.config = {
       require: 'codeceptjs-assert',
     },
   },
-  include: {
-  },
+  include: {},
   bootstrap: null,
   mocha: {},
   name: 'codeceptjs-resemblehelper',
