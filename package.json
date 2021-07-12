@@ -12,8 +12,8 @@
     "def": "npx codeceptjs def --output .",
     "tsc:build": "npx tsc",
     "test": "echo \"test OK\"",
-    "lint": "eslint index.ts ./tools ./configs ./tests",
-    "lint-fix": "eslint index.ts ./tools ./configs ./tests --fix",
+    "lint:prettier": "eslint index.ts ./tools ./configs ./tests && prettier --check .",
+    "lint:prettier-fix": "eslint index.ts ./tools ./configs ./tests --fix && prettier --write .",
     "conf:prepareBaseImage_undefined": "npm run def -- --config ./configs/prepareBaseImage-undefined.conf.js && codeceptjs run --config=./configs/prepareBaseImage-undefined.conf.js  --debug",
     "conf:prepareBaseImage_true": "npm run def -- --config ./configs/prepareBaseImage-true.conf.js && codeceptjs run --config=./configs/prepareBaseImage-true.conf.js  --debug",
     "conf:prepareBaseImage_false": "npm run def -- --config ./configs/prepareBaseImage-false.conf.js && codeceptjs run --config=./configs/prepareBaseImage-false.conf.js  --debug",
@@ -50,6 +50,7 @@
     "eslint-plugin-import": "^2.22.1",
     "mocha": "^6.2.2",
     "mochawesome": "^4.1.0",
+    "prettier": "^2.3.2",
     "semantic-release": "^17.3.7",
     "typescript": "^4.3.2",
     "webdriverio": "^6.12.0"

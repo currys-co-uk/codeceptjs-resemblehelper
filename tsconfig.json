@@ -11,5 +11,5 @@
     "types": ["codeceptjs"],
     "declaration": true,
     "noImplicitAny": true
-  },
+  }
 }

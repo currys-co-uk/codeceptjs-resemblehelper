@@ -1,5 +1,6 @@
 # @dixons/codeceptjs-resemblehelper
-Helper for resemble.js, used for image comparison in tests with Playwright, Webdriver, Puppeteer, Appium, TestCafe! 
+
+Helper for resemble.js, used for image comparison in tests with Playwright, Webdriver, Puppeteer, Appium, TestCafe!
 
 @dixons/codeceptjs-resemblehelper is a [CodeceptJS](https://codecept.io/) helper which can be used to compare screenshots and make the tests fail/pass based on the tolerance allowed.
 
@@ -17,18 +18,18 @@ Example:
 
 ```json
 {
-   "helpers": {
-     "ResembleHelper" : {
-       "require": "@dixons/codeceptjs-resemblehelper",
-       "baseFolder": "./tests/screenshots/base/",
-       "diffFolder": "./tests/screenshots/diff/",
-       "prepareBaseImage": true,
-       "tolerance": 10,
-       "skipFailure": true,
-       "createDiffInToleranceRange": true,
-       "alwaysSaveDiff": true
-     }
-   }
+  "helpers": {
+    "ResembleHelper": {
+      "require": "@dixons/codeceptjs-resemblehelper",
+      "baseFolder": "./tests/screenshots/base/",
+      "diffFolder": "./tests/screenshots/diff/",
+      "prepareBaseImage": true,
+      "tolerance": 10,
+      "skipFailure": true,
+      "createDiffInToleranceRange": true,
+      "alwaysSaveDiff": true
+    }
+  }
 }
 ```
 
@@ -39,9 +40,9 @@ To use the Helper, users may provide the parameters:
 `diffFolder`: Mandatory. This will the folder where resemble would try to store the difference image, which can be viewed later.
 
 `prepareBaseImage`: Optional. When `true` then the system replaces all of the baselines related to the test case(s) you ran. This is equivalent of setting the option `prepareBaseImage: true` in all verifications of the test file.
- If this parameter is missing in `.conf` file, value is `undefined`.
+If this parameter is missing in `.conf` file, value is `undefined`.
 
- `tolerance`: Optional. When value is present, system sets tolerance for all tests, which does not have it set. Set tolerance in tests has always higher priority, than global tolerance in config.
+`tolerance`: Optional. When value is present, system sets tolerance for all tests, which does not have it set. Set tolerance in tests has always higher priority, than global tolerance in config.
 
 `skipFailure`: Optional. When `true` is set, Resemble helper continue in test run even in the case of detected mismatch and returns warning to console.
 
@@ -54,8 +55,9 @@ To use the Helper, users may provide the parameters:
 These are the major functions that help in visual testing:
 
 First one is the `seeVisualDiff` which basically takes two parameters
-1) `baseImage` Name of the base image, this will be the image used for comparison with the screenshot image. It is mandatory to have the same image file names for base and screenshot image.
-2) `options` options can be passed which include `prepareBaseImage` and `tolerance`.
+
+1. `baseImage` Name of the base image, this will be the image used for comparison with the screenshot image. It is mandatory to have the same image file names for base and screenshot image.
+2. `options` options can be passed which include `prepareBaseImage` and `tolerance`.
 
 ```js
     /**
@@ -66,9 +68,11 @@ First one is the `seeVisualDiff` which basically takes two parameters
      */
     async seeVisualDiff(baseImage, options) {}
 ```
+
 Second one is the `seeVisualDiffForElement` which basically compares elements on the screenshot, selector for element must be provided.
 
 It is exactly same as `seeVisualDiff` function, only an additional `selector` CSS|XPath|ID locators is provided
+
 ```js
     /**
      * See Visual Diff for an Element on a Page
@@ -80,13 +84,14 @@ It is exactly same as `seeVisualDiff` function, only an additional `selector` CS
      */
     async seeVisualDiffForElement(selector, baseImage, options){}
 ```
+
 > Note:
-`seeVisualDiffForElement` only works when the page for baseImage is open in the browser, so that WebdriverIO can fetch coordinates of the provided selector.
+> `seeVisualDiffForElement` only works when the page for baseImage is open in the browser, so that WebdriverIO can fetch coordinates of the provided selector.
 
 Third one is the `screenshotElement` which basically takes screenshot of the element. Selector for the element must be provided. It saves the image in the output directory as mentioned in the config folder.
 
 ```js
-I.screenshotElement("selectorForElement", "nameForImage");
+I.screenshotElement('selectorForElement', 'nameForImage');
 ```
 
 Finally to use the helper in your test, you can write something like this:
@@ -95,34 +100,35 @@ Finally to use the helper in your test, you can write something like this:
 Feature('to verify monitoried Remote Db instances');
 
 Scenario('Open the System Overview Dashboard', async (I, adminPage, loginPage) => {
-    adminPage.navigateToDashboard("OS", "System Overview");
-    I.saveScreenshot("Complete_Dashboard_Image.png");
-    adminPage.applyTimer("1m");
-    adminPage.viewMetric("CPU Usage");
-    I.saveScreenshot("Complete_Metric_Image.png");
+  adminPage.navigateToDashboard('OS', 'System Overview');
+  I.saveScreenshot('Complete_Dashboard_Image.png');
+  adminPage.applyTimer('1m');
+  adminPage.viewMetric('CPU Usage');
+  I.saveScreenshot('Complete_Metric_Image.png');
 });
 
 Scenario('Compare CPU Usage Images', async (I) => {
+  // setting tolerance and prepareBaseImage in the options object
+  I.seeVisualDiff('Complete_Metric_Image.png', { prepareBaseImage: false, tolerance: 5 });
 
-    // setting tolerance and prepareBaseImage in the options object
-    I.seeVisualDiff("Complete_Metric_Image.png", {prepareBaseImage: false, tolerance: 5});
+  // passing a selector, to only compare that element on both the images now
 
-    // passing a selector, to only compare that element on both the images now
-
-    // We need to navigate to that page first, so that webdriver can fetch coordinates for the selector
-    adminPage.navigateToDashboard("OS", "System Overview");
-    I.seeVisualDiffForElement("//div[@class='panel-container']", "Complete_Dashboard_Image.png", {prepareBaseImage: false, tolerance: 3});
+  // We need to navigate to that page first, so that webdriver can fetch coordinates for the selector
+  adminPage.navigateToDashboard('OS', 'System Overview');
+  I.seeVisualDiffForElement("//div[@class='panel-container']", 'Complete_Dashboard_Image.png', { prepareBaseImage: false, tolerance: 3 });
 });
 ```
+
 > Note: `seeVisualDiff` and `seeVisualDiffElement` work only when the dimensions of the screenshot as well as the base image are same so as to avoid unexpected results.
 
-### Prepare base images behavior states 
+### Prepare base images behavior states
 
 Is it needed to have prepared base image before and only compare it, or create new base image? It depends how for every test is set:
+
 - `prepareBaseImage` parameter in config
 - `options` in test (e.g. `I.seeVisualDiff("image.png", {prepareBaseImage: true})`)
 - does base image already exists, or is missing?
-__Note__: Every state(rule/condition) is valid for every one instance of base image
+  **Note**: Every state(rule/condition) is valid for every one instance of base image
 
 ```
 | state |   config   |  options  | base image already exists? |       behavior         |
@@ -151,73 +157,85 @@ __Note__: Every state(rule/condition) is valid for every one instance of base im
 ```
 
 ### Ignored Box
+
 You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left.
 Just declare an object and pass it in options as `ignoredBox`:
+
 ```js
 const box = {
-    left: 0,
-    top: 10,
-    right: 0,
-    bottom: 10
+  left: 0,
+  top: 10,
+  right: 0,
+  bottom: 10,
 };
 
-I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, ignoredBox: box});
+I.seeVisualDiff('image.png', { prepareBaseImage: true, tolerance: 1, ignoredBox: box });
 ```
+
 After this, that specific mentioned part will be ignored while comparison.
 This works for `seeVisualDiff` and `seeVisualDiffForElement`.
 
 ### Ignored Element
+
 Similar as ignored box, when specific element is excluded from image comparison. You need to pass it in options as `ignoredElement`.
+
 ```js
 Scenario('Ignore element for screenshot visual diff', async ({ I }) => {
-    // I.amOnPage('https://the-internet.herokuapp.com/context_menu');
-    // I.saveScreenshot('IGNORED.png');
-    await I.seeVisualDiff('IGNORED.png', {ignoredElement: '#hot-spot'});
-  },
-);
+  // I.amOnPage('https://the-internet.herokuapp.com/context_menu');
+  // I.saveScreenshot('IGNORED.png');
+  await I.seeVisualDiff('IGNORED.png', { ignoredElement: '#hot-spot' });
+});
 ```
+
 After this, specific element will be ignored while comparison.
 This works for `seeVisualDiff` & `seeVisualDiffForElement`.
 
 ### Ignored Boxes
-Similar as Ignored Box, but with more excluded parts of the image comparison specifying the excluded area in pixels from top left.
-```js
- const box1 = {
-     left: 100,
-     top: 200,
-     right: 300,
-     bottom: 600
- };
 
- const box2 = {
-    left: 400,
-    top: 100,
-    right: 500,
-    bottom: 600
+Similar as Ignored Box, but with more excluded parts of the image comparison specifying the excluded area in pixels from top left.
+
+```js
+const box1 = {
+  left: 100,
+  top: 200,
+  right: 300,
+  bottom: 600,
 };
 
-await I.seeVisualDiff('image.png', { ignoredBoxes: [box1, box2] });  
+const box2 = {
+  left: 400,
+  top: 100,
+  right: 500,
+  bottom: 600,
+};
+
+await I.seeVisualDiff('image.png', { ignoredBoxes: [box1, box2] });
 ```
+
 After this, that specific mentioned parts will be ignored while comparison.
 This works for `seeVisualDiff`.
 
 ### Ignored elements
-Similar as Ignored element, but it possible to specific more elements, which should be excluded from image comparison. 
-```js 
+
+Similar as Ignored element, but it possible to specific more elements, which should be excluded from image comparison.
+
+```js
 Scenario('Ignore 2 elements for screenshot visual diff', async ({ I }) => {
-     //I.amOnPage('https://the-internet.herokuapp.com/context_menu');
-     //I.saveScreenshot('image.png');
-     await I.seeVisualDiff('image.png', { ignoredElements: ['#hot-spot', '#page-footer'] });
-   },
- );
+  //I.amOnPage('https://the-internet.herokuapp.com/context_menu');
+  //I.saveScreenshot('image.png');
+  await I.seeVisualDiff('image.png', { ignoredElements: ['#hot-spot', '#page-footer'] });
+});
 ```
+
 After this, that specific mentioned parts will be ignored while comparison.
 This works for `seeVisualDiff` & `seeVisualDiffForElement`.
 
-__Note__: DON'T use combination of `ignored box/boxes/element/elements` together, ALWAYS use only one of them as options !!!
+**Note**: DON'T use combination of `ignored box/boxes/element/elements` together, ALWAYS use only one of them as options !!!
 
 ### Ignored queryElementAll
+
 Functionality element selection is similar as `querySelectorAll` in `DOM`, `ignoredQueryElementAll` will find all identical/query suitable elements on the page and ignore them.
+
 ```js
 Scenario('Ignore all same elements', async ({ I }) => {
   //I.amOnPage('https://the-internet.herokuapp.com');
@@ -225,13 +243,16 @@ Scenario('Ignore all same elements', async ({ I }) => {
   await I.seeVisualDiff('image.png', { ignoredQueryElementAll: '//ul/li/a' });
 });
 ```
+
 This works for `seeVisualDiff` & `seeVisualDiffForElement`.
 
 ### createDiffInToleranceRange flag for generating diff images
+
 Default logic of creating diff images need to have greater mismatch, than tolerance.
 With set `createDiffInToleranceRange` as true in config you can affect generating diff images, if mismatch is in range of set tolerance (mismatch is not 0 but is less than tolerance).
 `createDiffInToleranceRange` cover only this condition.
 E.g.
+
 ```
 {
    "helpers": {
@@ -243,11 +264,14 @@ E.g.
    }
 }
 ```
+
 Options tolerance is 5, and test result mismatch was 2,4. -> diff image is created.
 
 ### alwaysSaveDiff flag for always generating diff images
+
 With set `alwaysSaveDiff` as `true` in config you can affect generating diff images, it covers all conditions and always returns generated diff image, doesn't matter if test passed or failed.
 E.g.
+
 ```
 {
    "helpers": {
@@ -261,25 +285,30 @@ E.g.
 ```
 
 ### resemble.js Output Settings
+
 You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
 
 ```js
 const outputSettings = {
-    ignoreAreasColoredWith: {r: 250, g: 250, b: 250, a: 0},
-    // read more here: https://github.com/rsmbl/Resemble.js
+  ignoreAreasColoredWith: { r: 250, g: 250, b: 250, a: 0 },
+  // read more here: https://github.com/rsmbl/Resemble.js
 };
-I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, outputSettings: outputSettings});
+I.seeVisualDiff('image.png', { prepareBaseImage: true, tolerance: 1, outputSettings: outputSettings });
 ```
 
 Refer to the [resemble.js](https://github.com/rsmbl/Resemble.js) documentation for available output settings.
 
 ### Skip Failure
+
 You can avoid the test fails for a given threshold but yet generates the difference image.
 Just declare an object and pass it in options as `skipFailure`:
+
 ```
 I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, skipFailure: true});
 ```
+
 or as global in config:
+
 ```
 {
    "helpers": {
@@ -291,11 +320,12 @@ or as global in config:
    }
 }
 ```
+
 After this, the system generates the difference image but does not fail the test.
 This works for `seeVisualDiff` and `seeVisualDiffForElement`.
 
-
 ### Allure Reporter
+
 Allure reports may also be generated directly from the tool. To do so, add
 
 ```
@@ -305,33 +335,37 @@ Allure reports may also be generated directly from the tool. To do so, add
 ```
 
 in the config file.
-The attachments will be added to the report only when the calulated mismatch is greater than the given tolerance. 
+The attachments will be added to the report only when the calulated mismatch is greater than the given tolerance.
 Set `output` to where the generated report is to be stored. Default is the output directory of the project.
 
 ### AWS Support
+
 AWS S3 support to upload and download various images is also provided.
-It can be used by adding the *aws* code inside `"ResembleHelper"` in the `"helpers"` section in config file. The final result should look like:    
+It can be used by adding the _aws_ code inside `"ResembleHelper"` in the `"helpers"` section in config file. The final result should look like:
+
 ```json
 {
-    "helpers": {
-        "ResembleHelper" : {
-            "require": "@dixons/codeceptjs-resemblehelper",
-            "baseFolder": "<location of base folder>",
-            "diffFolder": "<location of diff folder>",
-            "aws": {
-                "accessKeyId" : "<Your AccessKeyId>",
-                "secretAccessKey": "<Your secretAccessKey>",
-                "region": "<Region of Bucket>",
-                "bucketName": "<Bucket Name>"
-            }
-        }
+  "helpers": {
+    "ResembleHelper": {
+      "require": "@dixons/codeceptjs-resemblehelper",
+      "baseFolder": "<location of base folder>",
+      "diffFolder": "<location of diff folder>",
+      "aws": {
+        "accessKeyId": "<Your AccessKeyId>",
+        "secretAccessKey": "<Your secretAccessKey>",
+        "region": "<Region of Bucket>",
+        "bucketName": "<Bucket Name>"
+      }
     }
+  }
 }
 ```
+
 When this option has been provided, the helper will download the base image from the S3 bucket.
-This base image has to be located inside a folder named "*base*".
-The resultant output image will be uploaded in a folder named "*output*" and diff image will be uploaded to a folder named "*diff*" in the S3 bucket.
-If the `prepareBaseImage` option is marked `true`, then the generated base image will be uploaded to a folder named "*base*" in the S3 bucket.
+This base image has to be located inside a folder named "_base_".
+The resultant output image will be uploaded in a folder named "_output_" and diff image will be uploaded to a folder named "_diff_" in the S3 bucket.
+If the `prepareBaseImage` option is marked `true`, then the generated base image will be uploaded to a folder named "_base_" in the S3 bucket.
+
 > Note: The tests may take a bit longer to run when the AWS configuration is provided as determined by the internet speed to upload/download images.
 
 ### Known Issues:

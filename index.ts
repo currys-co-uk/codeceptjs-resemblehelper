@@ -10,11 +10,9 @@ import AWS from 'aws-sdk';
 import path from 'path';
 import chalk from 'chalk';
 
-
-
 type Options = {
-  ignoredBox?: BoxCoordinates
-  ignoredBoxes?: BoxCoordinates[]
+  ignoredBox?: BoxCoordinates;
+  ignoredBoxes?: BoxCoordinates[];
   ignoredElement?: Selector;
   ignoredElements?: Selector[];
   ignoredQueryElementAll?: Selector;
@@ -29,26 +27,24 @@ type Selector = string | { shadow: string | string[] } | { css: string } | Codec
 
 type GenericObject = { [key: string]: any };
 
-type BoxCoordinates = { left: number, top: number, right: number, bottom: number };
+type BoxCoordinates = { left: number; top: number; right: number; bottom: number };
 
 type CodeceptJSConfig = {
-  baseFolder: string
-  diffFolder: string
-  screenshotFolder: string
-  prepareBaseImage?: boolean
-  tolerance?: number
-  skipFailure?: boolean
-  createDiffInToleranceRange?: boolean
-  alwaysSaveDiff?: boolean
+  baseFolder: string;
+  diffFolder: string;
+  screenshotFolder: string;
+  prepareBaseImage?: boolean;
+  tolerance?: number;
+  skipFailure?: boolean;
+  createDiffInToleranceRange?: boolean;
+  alwaysSaveDiff?: boolean;
 };
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
- * 
+ *
  */
 
 class ResembleHelper extends Helper {
-
-
   public constructor(config: CodeceptJSConfig) {
     super(config);
     this.baseFolder = this._resolvePath(config.baseFolder);
@@ -76,25 +72,25 @@ class ResembleHelper extends Helper {
    * @param options
    * @returns {Promise<resolve | reject>}
    */
-  private async _compareImages(image: string, diffImage: string, options: Options): Promise<resemble.ResembleSingleCallbackComparisonResult> {
+  private async _compareImages(
+    image: string,
+    diffImage: string,
+    options: Options,
+  ): Promise<resemble.ResembleSingleCallbackComparisonResult> {
     const baseImage = `${this.baseFolder}${image}`;
     const actualImage = `${this.screenshotFolder}${image}`;
 
     // check whether the base and the screenshot images are present.
     fs.access(baseImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) {
-        throw new Error(
-          `${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist'
-            : 'base image has an access error'}`,
-        );
+        throw new Error(`${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist' : 'base image has an access error'}`);
       }
     });
 
     fs.access(actualImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) {
         throw new Error(
-          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist'
-            : 'screenshot image has an access error'}`,
+          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist' : 'screenshot image has an access error'}`,
         );
       }
     });
@@ -120,7 +116,11 @@ class ResembleHelper extends Helper {
           if (!data.isSameDimensions) {
             const dimensions1 = sizeOf(baseImage);
             const dimensions2 = sizeOf(actualImage);
-            reject(new Error(`The base image is of ${dimensions1.height} X ${dimensions1.width} and actual image is of ${dimensions2.height} X ${dimensions2.width}. Please use images of same dimensions so as to avoid any unexpected results.`));
+            reject(
+              new Error(
+                `The base image is of ${dimensions1.height} X ${dimensions1.width} and actual image is of ${dimensions2.height} X ${dimensions2.width}. Please use images of same dimensions so as to avoid any unexpected results.`,
+              ),
+            );
           }
           resolve(data);
           if (Number(data.misMatchPercentage) > tolerance && this.createDiffInToleranceRange !== true) {
@@ -143,7 +143,9 @@ class ResembleHelper extends Helper {
               const diffImagePath = `${this.diffFolder}${diffImage}.png`;
               this.debug(`Diff Image File Saved to: ${diffImagePath}`);
             } else {
-              this.debug(chalk.yellow`You have set createDiffInToleranceRange as true and your mismatch: ${data.misMatchPercentage} is not in tolerance: ${tolerance}`);
+              this.debug(
+                chalk.yellow`You have set createDiffInToleranceRange as true and your mismatch: ${data.misMatchPercentage} is not in tolerance: ${tolerance}`,
+              );
               this.debug(chalk.yellow`Diff Image File NOT Saved.`);
             }
           }
@@ -209,7 +211,7 @@ class ResembleHelper extends Helper {
     } else if (this.helpers.TestCafe) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
-      if (!await els.count) throw new Error(`Element ${selector} couldn't be located`);
+      if (!(await els.count)) throw new Error(`Element ${selector} couldn't be located`);
       const { t } = this.helpers.TestCafe;
 
       await t.takeElementScreenshot(els, name);
@@ -269,7 +271,14 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void>}
    */
 
-  private async _upload(accessKeyId: string, secretAccessKey: string, region: string, bucketName: string, baseImage: string, ifBaseImage: boolean): Promise<void> {
+  private async _upload(
+    accessKeyId: string,
+    secretAccessKey: string,
+    region: string,
+    bucketName: string,
+    baseImage: string,
+    ifBaseImage: boolean,
+  ): Promise<void> {
     console.log('Starting Upload... ');
     const s3 = new AWS.S3({
       accessKeyId,
@@ -406,28 +415,26 @@ class ResembleHelper extends Helper {
       options.ignoredBoxes = await this._locateAll(options.ignoredQueryElementAll);
     }
 
-    const prepareBaseImage = options.prepareBaseImage !== undefined
-      ? options.prepareBaseImage
-      : (this.prepareBaseImage === true);
+    const prepareBaseImage = options.prepareBaseImage !== undefined ? options.prepareBaseImage : this.prepareBaseImage === true;
     const awsC = this.config.aws;
     if (awsC !== undefined && prepareBaseImage === false) {
       await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
     }
 
-    if ((this.prepareBaseImage === true && options.prepareBaseImage === undefined)
-      || (options.prepareBaseImage === true)
-      || (this.prepareBaseImage === undefined && options.prepareBaseImage === undefined)) {
+    if (
+      (this.prepareBaseImage === true && options.prepareBaseImage === undefined) ||
+      options.prepareBaseImage === true ||
+      (this.prepareBaseImage === undefined && options.prepareBaseImage === undefined)
+    ) {
       await this._prepareBaseImage(baseImage, options);
     }
 
     if (selector) {
       if (options.ignoredElement) {
-    
         options.ignoredBox = (await this._reCountElementCoordinatesForIgnoreInScreenshotElement(selector, [options.ignoredBox!]))[0];
         this.debug(`You ignore one element in screenshotted element "${selector}" ...`);
         this.debug(`Element coordinates were recounted to element screenshotted size as: ${JSON.stringify(options.ignoredBox)}`);
-      }
-      else if (options.ignoredElements || options.ignoredQueryElementAll) {
+      } else if (options.ignoredElements || options.ignoredQueryElementAll) {
         options.ignoredBoxes = await this._reCountElementCoordinatesForIgnoreInScreenshotElement(selector, options.ignoredBoxes!);
         this.debug(`You ignore more elements in screenshotted element "${selector}" ...`);
         this.debug(`Element coordinates were recounted to element screenshotted size as: ${JSON.stringify(options.ignoredBoxes)}`);
@@ -452,7 +459,7 @@ class ResembleHelper extends Helper {
         throw new Error(`Screenshot does not match with the baseline ${baseImage} when MissMatch Percentage is ${misMatch}`);
       }
     }
-    if ((options.skipFailure === true) && (misMatch > options.tolerance)) {
+    if (options.skipFailure === true && misMatch > options.tolerance) {
       console.log(`${chalk.red.bgYellowBright.bold('--------------- WARNING ---------------')}`);
       console.log(chalk.red.bgYellowBright.bold`You have set "skipFailure: true"`);
       console.log(chalk.red.bgYellowBright.bold`Your baseline "${baseImage}" MissMatch Percentage is ${misMatch}`);
@@ -471,17 +478,13 @@ class ResembleHelper extends Helper {
 
     fs.access(`${this.screenshotFolder}${screenShotImage}`, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
-        throw new Error(
-          `${this.screenshotFolder}${screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`,
-        );
+        throw new Error(`${this.screenshotFolder}${screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
       }
     });
 
     fs.access(this.baseFolder, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
-        throw new Error(
-          `${this.baseFolder} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`,
-        );
+        throw new Error(`${this.baseFolder} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
       }
     });
 
@@ -493,14 +496,12 @@ class ResembleHelper extends Helper {
         this.debug('Creating base image ...');
         fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
         this.debug(`Base image: ${screenShotImage} is created.`);
-      } 
-      else if (this.prepareBaseImage === true && options.prepareBaseImage === undefined) {
+      } else if (this.prepareBaseImage === true && options.prepareBaseImage === undefined) {
         this.debug('Global config is set as: prepareBaseImage = true');
         this.debug('Creating base image ...');
         fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
         this.debug(`Base image: ${screenShotImage} is created.`);
-      } 
-      else {
+      } else {
         this.debug(`Found existing base image: ${screenShotImage} and use it for compare.`);
       }
     } catch (e) {
@@ -532,7 +533,7 @@ class ResembleHelper extends Helper {
     fs.unlink(pathToFile, (err) => {
       if (err && err.code === 'ENOENT') {
         console.info(`Current directory: " ${process.cwd()}`);
-        console.info('File doesn\'t exist, can\'t remove it.');
+        console.info("File doesn't exist, can't remove it.");
       } else if (err) {
         console.error('Error occurred while trying to remove file');
       } else {
@@ -553,10 +554,11 @@ class ResembleHelper extends Helper {
     const els = await helper._locate(selector);
 
     if (this.helpers.TestCafe) {
-      if (await els.count !== 1) throw new Error(`Element ${selector} couldn't be located or isn't unique on the page`);
+      if ((await els.count) !== 1) throw new Error(`Element ${selector} couldn't be located or isn't unique on the page`);
     } else if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
 
-    let location; let size;
+    let location;
+    let size;
 
     if (this.helpers.Puppeteer || this.helpers.Playwright) {
       const el = els[0];
@@ -613,14 +615,16 @@ class ResembleHelper extends Helper {
    * @param ignoredElementsCoordinates Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *}]>}
    */
-  private async _reCountElementCoordinatesForIgnoreInScreenshotElement(selector: Selector, ignoredElementsCoordinates: BoxCoordinates[]): Promise<BoxCoordinates[]> {
+  private async _reCountElementCoordinatesForIgnoreInScreenshotElement(
+    selector: Selector,
+    ignoredElementsCoordinates: BoxCoordinates[],
+  ): Promise<BoxCoordinates[]> {
     const helper = this._getHelper();
     const boundingBox = await this._getBoundingBox(selector);
 
     const scrollOffset = await helper.executeScript(() => ({ X: window.pageXOffset, Y: window.pageYOffset }));
 
     ignoredElementsCoordinates = ignoredElementsCoordinates.map((elementCoordinates) => {
-
       const left = elementCoordinates.left - boundingBox.left + scrollOffset.X;
       const top = elementCoordinates.top - boundingBox.top + scrollOffset.Y;
       const right = elementCoordinates.right - boundingBox.left + scrollOffset.X;
@@ -635,7 +639,11 @@ class ResembleHelper extends Helper {
     });
 
     if (scrollOffset.X || scrollOffset.Y) {
-      this.debug(`Screenshotted element was in test scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(scrollOffset.X)}" px horizontal.`);
+      this.debug(
+        `Screenshotted element was in test scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(
+          scrollOffset.X,
+        )}" px horizontal.`,
+      );
     }
 
     return ignoredElementsCoordinates;
@@ -660,7 +668,8 @@ class ResembleHelper extends Helper {
    */
   private async _countCoordinates(el: WebdriverIO.Element | ElementHandle, selector: Selector): Promise<BoxCoordinates> {
     const helper = this._getHelper();
-    let location; let size;
+    let location;
+    let size;
 
     if (this.helpers.WebDriver || this.helpers.Appium) {
       location = await el.getLocation();
@@ -690,7 +699,11 @@ class ResembleHelper extends Helper {
     };
 
     this.debug(`Element: ${JSON.stringify(selector)} has coordinates: ${JSON.stringify(ignoredBox)}`);
-    this.debug(`Browser screen was scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(scrollOffset.X)}" px horizontal.`);
+    this.debug(
+      `Browser screen was scrolled "${JSON.stringify(scrollOffset.Y)}" px vertically and "${JSON.stringify(
+        scrollOffset.X,
+      )}" px horizontal.`,
+    );
 
     return ignoredBox;
   }
