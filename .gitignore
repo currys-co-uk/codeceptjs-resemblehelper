@@ -75,6 +75,7 @@ index.d.ts
 /tests/*.d.ts
 /tools/*.d.ts
 paths.d.ts
+steps.d.ts
 
 # Ignore auto-generated javascript files
 index.js

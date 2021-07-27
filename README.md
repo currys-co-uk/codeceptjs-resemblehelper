@@ -16,18 +16,19 @@ This helper should be added in codecept.json/codecept.conf.js
 
 Example:
 
-```json
+```js
 {
-  "helpers": {
-    "ResembleHelper": {
-      "require": "@dixons/codeceptjs-resemblehelper",
-      "baseFolder": "./tests/screenshots/base/",
-      "diffFolder": "./tests/screenshots/diff/",
-      "prepareBaseImage": true,
-      "tolerance": 10,
-      "skipFailure": true,
-      "createDiffInToleranceRange": true,
-      "alwaysSaveDiff": true
+  helpers: {
+    ResembleHelper: {
+      require: "@dixons/codeceptjs-resemblehelper",
+      baseFolder: "./tests/screenshots/base/",
+      diffFolder: "./tests/screenshots/diff/",
+      prepareBaseImage: true,
+      tolerance: 10,
+      skipFailure: true,
+      createDiffInToleranceRange: true,
+      alwaysSaveDiff: true,
+      createSubFoldersInBaseFolder: true
     }
   }
 }
@@ -49,6 +50,8 @@ If this parameter is missing in `.conf` file, value is `undefined`.
 `createDiffInToleranceRange`: Optional, when `true` is set, diff is created only if mismatch is in range of set tolerance (mismatch is not 0 but is less than tolerance).
 
 `alwaysSaveDiff`: Optional. When set as `true` diff image is created in every case.
+
+`createSubFoldersInBaseFolder`: Optional. When `true` is set, for every base image is created sub folder in base image. Sub folder is named as first 50 chars of test `Scenario` title.
 
 ### Usage
 
@@ -130,7 +133,7 @@ Is it needed to have prepared base image before and only compare it, or create n
 - does base image already exists, or is missing?
   **Note**: Every state(rule/condition) is valid for every one instance of base image
 
-```
+```js
 | state |   config   |  options  | base image already exists? |       behavior         |
 | ----- | ---------- | --------- | -------------------------- | ---------------------- |
 |   1   |  undefined | undefined |           yes              |        compare         |
@@ -253,12 +256,12 @@ With set `createDiffInToleranceRange` as true in config you can affect generatin
 `createDiffInToleranceRange` cover only this condition.
 E.g.
 
-```
+```js
 {
-   "helpers": {
-     "ResembleHelper" : {
+   helpers: {
+     ResembleHelper : {
        ...
-       "createDiffInToleranceRange": true
+       createDiffInToleranceRange: true
        ...
      }
    }
@@ -272,17 +275,49 @@ Options tolerance is 5, and test result mismatch was 2,4. -> diff image is creat
 With set `alwaysSaveDiff` as `true` in config you can affect generating diff images, it covers all conditions and always returns generated diff image, doesn't matter if test passed or failed.
 E.g.
 
-```
+```js
 {
-   "helpers": {
-     "ResembleHelper" : {
+   helpers: {
+     ResembleHelper : {
        ...
-       "alwaysSaveDiff": true
+       alwaysSaveDiff: true
        ...
      }
    }
 }
 ```
+
+### createSubFoldersInBaseFolder flag for creating sub folders
+
+With set `createSubFoldersInBaseFolder` as `true` in the config you can affect creating sub folders for base images. This flag is helpful if you have a lot of base images (e.g. more than 200) and `/baseFolder` is not providing an easy survey for your eyes.
+Sub folder in `/baseFolder` is named as max 50 chars of test `Scenario` title. Sub folder name is also correctly parsed for disallowed chars in Windows/Mac.
+E.g.
+
+```js
+{
+   helpers: {
+     ResembleHelper : {
+       //...
+       baseFolder: "./tests/screenshots/base/",
+       //...
+       createSubFoldersInBaseFolder: true
+       //...
+     }
+   }
+}
+```
+
+In test should look like this:
+
+```js
+Scenario('creates my first base image for first visual testing', async ({ I }) => {
+  //I.amOnPage('https://the-internet.herokuapp.com');
+  //await I.saveScreenshot('image.png');
+  await I.seeVisualDiff('image.png');
+});
+```
+
+So, what happened? In base folder (`"./tests/screenshots/base/"`) is created sub folder with name `/creates_my_first_base_image_for_first_v` (with max 50 first chars) and into them is saved file `image.png`.
 
 ### resemble.js Output Settings
 
@@ -309,12 +344,12 @@ I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, skipFailure:
 
 or as global in config:
 
-```
+```js
 {
-   "helpers": {
-     "ResembleHelper" : {
+   helpers: {
+     ResembleHelper : {
        ...
-       "skipFailure": true
+       skipFailure: true
        ...
      }
    }
@@ -343,18 +378,18 @@ Set `output` to where the generated report is to be stored. Default is the outpu
 AWS S3 support to upload and download various images is also provided.
 It can be used by adding the _aws_ code inside `"ResembleHelper"` in the `"helpers"` section in config file. The final result should look like:
 
-```json
+```js
 {
-  "helpers": {
-    "ResembleHelper": {
-      "require": "@dixons/codeceptjs-resemblehelper",
-      "baseFolder": "<location of base folder>",
-      "diffFolder": "<location of diff folder>",
-      "aws": {
-        "accessKeyId": "<Your AccessKeyId>",
-        "secretAccessKey": "<Your secretAccessKey>",
-        "region": "<Region of Bucket>",
-        "bucketName": "<Bucket Name>"
+  helpers: {
+    ResembleHelper: {
+      require: "@dixons/codeceptjs-resemblehelper",
+      baseFolder: "<location of base folder>",
+      diffFolder: "<location of diff folder>",
+      aws: {
+        accessKeyId: "<Your AccessKeyId>",
+        secretAccessKey: "<Your secretAccessKey>",
+        region: "<Region of Bucket>",
+        bucketName: "<Bucket Name>"
       }
     }
   }
