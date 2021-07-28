@@ -51,7 +51,7 @@ If this parameter is missing in `.conf` file, value is `undefined`.
 
 `alwaysSaveDiff`: Optional. When set as `true` diff image is created in every case.
 
-`createSubFoldersInBaseFolder`: Optional. When `true` is set, for every base image is created sub folder in base image. Sub folder is named as first 50 chars of test `Scenario` title.
+`createSubFoldersInBaseFolder`: Optional. When `true` is set, for every base image is created sub folder in `/base` folder. Sub folder is named as first 50 chars of test `Scenario` title.
 
 ### Usage
 
@@ -290,7 +290,7 @@ E.g.
 ### createSubFoldersInBaseFolder flag for creating sub folders
 
 With set `createSubFoldersInBaseFolder` as `true` in the config you can affect creating sub folders for base images. This flag is helpful if you have a lot of base images (e.g. more than 200) and `/baseFolder` is not providing an easy survey for your eyes.
-Sub folder in `/baseFolder` is named as max 50 chars of test `Scenario` title. Sub folder name is also correctly parsed for disallowed chars in Windows/Mac.
+For sub folder name in `/baseFolder` is used the first 50 chars of test `Scenario` title. Sub folder name is also correctly parsed for disallowed chars in Windows/Mac.
 E.g.
 
 ```js
