@@ -3,6 +3,7 @@ const sizeOf = require('image-size');
 const Helper = require('@codeceptjs/helper');
 //@ts-ignore
 import { ElementHandle } from 'playwright';
+import { event } from 'codeceptjs';
 import resemble from 'resemblejs';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
@@ -38,6 +39,7 @@ type CodeceptJSConfig = {
   skipFailure?: boolean;
   createDiffInToleranceRange?: boolean;
   alwaysSaveDiff?: boolean;
+  createSubFoldersInBaseFolder?: boolean;
 };
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -48,6 +50,7 @@ class ResembleHelper extends Helper {
   public constructor(config: CodeceptJSConfig) {
     super(config);
     this.baseFolder = this._resolvePath(config.baseFolder);
+    this._baseFolder = this._resolvePath(config.baseFolder);
     this.diffFolder = this._resolvePath(config.diffFolder);
     this.screenshotFolder = `${global.output_dir}/`;
     this.prepareBaseImage = config.prepareBaseImage;
@@ -55,6 +58,16 @@ class ResembleHelper extends Helper {
     this.skipFailure = config.skipFailure;
     this.createDiffInToleranceRange = config.createDiffInToleranceRange;
     this.alwaysSaveDiff = config.alwaysSaveDiff;
+    this.createSubFoldersInBaseFolder = config.createSubFoldersInBaseFolder;
+  }
+
+  protected async _before(): Promise<void> {
+    if (this.createSubFoldersInBaseFolder) {
+      event.dispatcher.on(event.test.started, (test) => {
+        const parsedTestTitle = test.title.slice(0, 50).replace(/[<>:"/\\|\\?*,(){} ]/g, '_');
+        this.baseFolder = `${this._baseFolder}${parsedTestTitle}/`;
+      });
+    }
   }
 
   private _resolvePath(folderPath: string): string {
@@ -493,23 +506,53 @@ class ResembleHelper extends Helper {
 
       if (options.prepareBaseImage === true) {
         this.debug('Test option is set as: prepareBaseImage = true');
-        this.debug('Creating base image ...');
-        fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
-        this.debug(`Base image: ${screenShotImage} is created.`);
+        this._createBaseImage(
+          screenShotImage,
+          this.baseFolder,
+          `${this.screenshotFolder}${screenShotImage}`,
+          `${this.baseFolder}${screenShotImage}`,
+        );
       } else if (this.prepareBaseImage === true && options.prepareBaseImage === undefined) {
         this.debug('Global config is set as: prepareBaseImage = true');
-        this.debug('Creating base image ...');
-        fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
-        this.debug(`Base image: ${screenShotImage} is created.`);
+        this._createBaseImage(
+          screenShotImage,
+          this.baseFolder,
+          `${this.screenshotFolder}${screenShotImage}`,
+          `${this.baseFolder}${screenShotImage}`,
+        );
       } else {
         this.debug(`Found existing base image: ${screenShotImage} and use it for compare.`);
       }
     } catch (e) {
       this.debug(`Existing base image with name ${screenShotImage} was not found.`);
-      this.debug('Creating base image ...');
-      fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
-      this.debug(`Base image: ${screenShotImage} is created.`);
+      this._createBaseImage(
+        screenShotImage,
+        this.baseFolder,
+        `${this.screenshotFolder}${screenShotImage}`,
+        `${this.baseFolder}${screenShotImage}`,
+      );
     }
+  }
+
+  /**
+   * Function for create base image
+   * @param baseImage
+   * @param baseFolder
+   * @param screenshotImageFromScreenshotFolder
+   * @param screenshotImageToBaseFolder
+   * @returns void
+   * @private
+   */
+  private _createBaseImage(
+    baseImage: string,
+    baseFolder: string,
+    screenshotImageFromScreenshotFolder: string,
+    screenshotImageToBaseFolder: string,
+  ): void {
+    this.debug('Creating base image ...');
+    this.debug(`In base folder: ${baseFolder}`);
+    fs.copyFileSync(screenshotImageFromScreenshotFolder, screenshotImageToBaseFolder);
+    this.debug(`Base image: ${baseImage} is created.`);
   }
 
   /**
