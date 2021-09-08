@@ -28,7 +28,8 @@ Example:
       skipFailure: true,
       createDiffInToleranceRange: true,
       alwaysSaveDiff: true,
-      createSubFoldersInBaseFolder: true
+      createSubFoldersInBaseFolder: true,
+      updateMismatchedBaseImage: true
     }
   }
 }
@@ -52,6 +53,9 @@ If this parameter is missing in `.conf` file, value is `undefined`.
 `alwaysSaveDiff`: Optional. When set as `true` diff image is created in every case.
 
 `createSubFoldersInBaseFolder`: Optional. When `true` is set, for every base image is created sub folder in `/base` folder. Sub folder is named as first 50 chars of test `Scenario` title.
+
+`updateMismatchedBaseImage`: Optional. When `true`, existing base images, which meet condition `mismatch > tolerance`, are updated with actual screenshot of web site, tolerance is then set to `0` and diff with mismatch is not saved to folder.
+Use only if base images exists. Parameter is not compatible with `prepareBaseImage`.
 
 ### Usage
 
@@ -318,6 +322,25 @@ Scenario('creates my first base image for first visual testing', async ({ I }) =
 ```
 
 So, what happened? In base folder (`"./tests/screenshots/base/"`) is created sub folder with name `/creates_my_first_base_image_for_first_v` (with max 50 first chars) and into them is saved file `image.png`.
+
+### updateMismatchedBaseImage flag for updating existing base images with mismatch
+
+With `updateMismatchedBaseImage` as `true` in config you can update existing base images with mismatch. It is needed to meet condition `mismatch > tolerance`, then existing base image is updated with actual screenshot of web site.
+Tolerance is then set to `0` and diff with mismatch is not saved to folder. Use only if base images exists.
+
+> Note: Parameter is not compatible with `prepareBaseImage` and doesn't replace it.
+
+```js
+{
+   helpers: {
+     ResembleHelper : {
+       ...
+       updateMismatchedBaseImage: true
+       ...
+     }
+   }
+}
+```
 
 ### resemble.js Output Settings
 

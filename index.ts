@@ -40,6 +40,7 @@ type CodeceptJSConfig = {
   createDiffInToleranceRange?: boolean;
   alwaysSaveDiff?: boolean;
   createSubFoldersInBaseFolder?: boolean;
+  updateMismatchedBaseImage?: boolean;
 };
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -59,6 +60,7 @@ class ResembleHelper extends Helper {
     this.createDiffInToleranceRange = config.createDiffInToleranceRange;
     this.alwaysSaveDiff = config.alwaysSaveDiff;
     this.createSubFoldersInBaseFolder = config.createSubFoldersInBaseFolder;
+    this.updateMismatchedBaseImage = config.updateMismatchedBaseImage;
   }
 
   protected async _before(): Promise<void> {
@@ -136,7 +138,7 @@ class ResembleHelper extends Helper {
             );
           }
           resolve(data);
-          if (Number(data.misMatchPercentage) > tolerance && this.createDiffInToleranceRange !== true) {
+          if (Number(data.misMatchPercentage) > tolerance && this.createDiffInToleranceRange !== true && !this.updateMismatchedBaseImage) {
             if (!fs.existsSync(getDirName(`${this.diffFolder}${diffImage}`))) {
               fs.mkdirSync(getDirName(`${this.diffFolder}${diffImage}`));
             }
@@ -435,9 +437,10 @@ class ResembleHelper extends Helper {
     }
 
     if (
-      (this.prepareBaseImage === true && options.prepareBaseImage === undefined) ||
-      options.prepareBaseImage === true ||
-      (this.prepareBaseImage === undefined && options.prepareBaseImage === undefined)
+      ((this.prepareBaseImage === true && options.prepareBaseImage === undefined) ||
+        options.prepareBaseImage === true ||
+        (this.prepareBaseImage === undefined && options.prepareBaseImage === undefined)) &&
+      !this.updateMismatchedBaseImage
     ) {
       await this._prepareBaseImage(baseImage, options);
     }
@@ -457,7 +460,17 @@ class ResembleHelper extends Helper {
     }
 
     const imageTimestamp = this._getTimestamp();
-    const misMatch = await this._fetchMisMatchPercentage(baseImage, options, imageTimestamp);
+    let misMatch = await this._fetchMisMatchPercentage(baseImage, options, imageTimestamp);
+
+    if (this.updateMismatchedBaseImage === true && misMatch > options.tolerance) {
+      console.log(`${chalk.magenta.bold('--------------- INFO -----------------')}`);
+      console.log(`${chalk.magenta.bold('--- "updateMismatchedBaseImage" IS TURN ON ---')}`);
+      console.log(chalk.magenta.bold`Mismatch: ${misMatch} > Tolerance: ${options.tolerance}`);
+      console.log(`${chalk.magenta.bold('Base image will be updated...')}`);
+      console.log(`${chalk.magenta.bold('--------------------------------------')}`);
+      await this._prepareBaseImage(baseImage, options);
+      misMatch = 0;
+    }
 
     await this._addAttachment(baseImage, misMatch, options.tolerance, imageTimestamp);
     await this._addMochaContext(baseImage, misMatch, options.tolerance);
@@ -469,13 +482,13 @@ class ResembleHelper extends Helper {
 
     if (!options.skipFailure) {
       if (misMatch > options.tolerance) {
-        throw new Error(`Screenshot does not match with the baseline ${baseImage} when MissMatch Percentage is ${misMatch}`);
+        throw new Error(`Screenshot does not match with the baseline ${baseImage} when MisMatch Percentage is ${misMatch}`);
       }
     }
     if (options.skipFailure === true && misMatch > options.tolerance) {
       console.log(`${chalk.red.bgYellowBright.bold('--------------- WARNING ---------------')}`);
       console.log(chalk.red.bgYellowBright.bold`You have set "skipFailure: true"`);
-      console.log(chalk.red.bgYellowBright.bold`Your baseline "${baseImage}" MissMatch Percentage is ${misMatch}`);
+      console.log(chalk.red.bgYellowBright.bold`Your baseline "${baseImage}" MisMatch Percentage is ${misMatch}`);
       console.log(`${chalk.red.bgYellowBright.bold('-------------- END WARNING --------------')}`);
     }
   }
@@ -520,6 +533,12 @@ class ResembleHelper extends Helper {
           `${this.screenshotFolder}${screenShotImage}`,
           `${this.baseFolder}${screenShotImage}`,
         );
+      } else if (this.updateMismatchedBaseImage === true) {
+        this.debug('Global config is set as updateMismatchedBaseImage = true');
+        this.debug('Updating base image ...');
+        this.debug(`In base folder: ${this.baseFolder}`);
+        fs.copyFileSync(`${this.screenshotFolder}${screenShotImage}`, `${this.baseFolder}${screenShotImage}`);
+        this.debug(`Base image: ${screenShotImage} is updated.`);
       } else {
         this.debug(`Found existing base image: ${screenShotImage} and use it for compare.`);
       }
