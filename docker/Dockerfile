@@ -12,4 +12,4 @@ WORKDIR /home/node/app/
 # Download the dependecies
 RUN npm ci
 
-CMD /bin/bash -c "npm run createSubFoldersInBaseFolder; npm run ignoredElement_x; npm run conf:prepareBaseImage_undefined; npm run conf:prepareBaseImage_true; npm run conf:prepareBaseImage_false"
+CMD /bin/bash -c "npm run updateMismatchedBaseImage; npm run createSubFoldersInBaseFolder; npm run ignoredElement_x; npm run conf:prepareBaseImage_undefined; npm run conf:prepareBaseImage_true; npm run conf:prepareBaseImage_false"
