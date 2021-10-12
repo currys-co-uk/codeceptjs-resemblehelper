@@ -1,14 +1,14 @@
-# @dixons/codeceptjs-resemblehelper
+# @currys-co-uk/codeceptjs-resemblehelper
 
 Helper for resemble.js, used for image comparison in tests with Playwright, Webdriver, Puppeteer, Appium, TestCafe!
 
-@dixons/codeceptjs-resemblehelper is a [CodeceptJS](https://codecept.io/) helper which can be used to compare screenshots and make the tests fail/pass based on the tolerance allowed.
+@currys-co-uk/codeceptjs-resemblehelper is a [CodeceptJS](https://codecept.io/) helper which can be used to compare screenshots and make the tests fail/pass based on the tolerance allowed.
 
 If two screenshot comparisons have difference greater then the tolerance provided, the test will fail.
 
-NPM package: https://www.npmjs.com/package/@dixons/codeceptjs-resemblehelper
+NPM package: https://www.npmjs.com/package/@currys-co-uk/codeceptjs-resemblehelper
 
-To install the package, just run `npm install @dixons/codeceptjs-resemblehelper`.
+To install the package, just run `npm install @currys-co-uk/codeceptjs-resemblehelper`.
 
 ### Configuration
 
@@ -20,7 +20,7 @@ Example:
 {
   helpers: {
     ResembleHelper: {
-      require: "@dixons/codeceptjs-resemblehelper",
+      require: "@currys-co-uk/codeceptjs-resemblehelper",
       baseFolder: "./tests/screenshots/base/",
       diffFolder: "./tests/screenshots/diff/",
       prepareBaseImage: true,
@@ -405,7 +405,7 @@ It can be used by adding the _aws_ code inside `"ResembleHelper"` in the `"helpe
 {
   helpers: {
     ResembleHelper: {
-      require: "@dixons/codeceptjs-resemblehelper",
+      require: "@currys-co-uk/codeceptjs-resemblehelper",
       baseFolder: "<location of base folder>",
       diffFolder: "<location of diff folder>",
       aws: {
