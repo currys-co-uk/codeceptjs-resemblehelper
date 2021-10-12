@@ -1,5 +1,5 @@
 {
-  "name": "@currys-group/codeceptjs-resemblehelper",
+  "name": "@currys-co-uk/codeceptjs-resemblehelper",
   "version": "0.0.0-development",
   "publishConfig": {
     "access": "public"
@@ -7,7 +7,7 @@
   "description": "Forked Resemble JS helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
   "main": "index.js",
   "types": "index.d.ts",
-  "homepage": "https://github.com/currys-group/codeceptjs-resemblehelper#readme",
+  "homepage": "https://github.com/currys-co-uk/codeceptjs-resemblehelper#readme",
   "scripts": {
     "def": "npx codeceptjs def --output .",
     "ts:types": "npm run def -- --config ./configs/prepareBaseImage-undefined.conf.js",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/currys-group/codeceptjs-resemblehelper.git"
+    "url": "git+https://github.com/currys-co-uk/codeceptjs-resemblehelper.git"
   },
   "dependencies": {
     "@types/mkdirp": "^1.0.1",
