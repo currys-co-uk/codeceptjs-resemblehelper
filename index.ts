@@ -41,6 +41,7 @@ type CodeceptJSConfig = {
   alwaysSaveDiff?: boolean;
   createSubFoldersInBaseFolder?: boolean;
   updateMismatchedBaseImage?: boolean;
+  ignoreNothing?: boolean;
 };
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -61,6 +62,7 @@ class ResembleHelper extends Helper {
     this.alwaysSaveDiff = config.alwaysSaveDiff;
     this.createSubFoldersInBaseFolder = config.createSubFoldersInBaseFolder;
     this.updateMismatchedBaseImage = config.updateMismatchedBaseImage;
+    this.ignoreNothing = config.ignoreNothing;
   }
 
   protected async _before(): Promise<void> {
@@ -114,6 +116,12 @@ class ResembleHelper extends Helper {
       if (!options.outputSettings) {
         options.outputSettings = {};
       }
+
+      if (this.ignoreNothing === true && !options.ignore) {
+        options.ignore = "nothing";
+        this.debug('Full image comparison is turn on.');
+      }
+
       resemble.outputSettings({
         boundingBox: options.boundingBox,
         ignoredBox: options.ignoredBox,

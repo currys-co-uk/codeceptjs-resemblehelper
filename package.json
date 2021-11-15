@@ -20,7 +20,8 @@
     "conf:prepareBaseImage_false": "npm run def -- --config ./configs/prepareBaseImage-false.conf.js && codeceptjs run --config=./configs/prepareBaseImage-false.conf.js  --debug",
     "ignoredElement_x": "npm run def -- --config ./configs/ignored.conf.js && codeceptjs run --config=./configs/ignored.conf.js --debug",
     "createSubFoldersInBaseFolder": "npm run def -- --config ./configs/createSubFoldersInBaseFolder.conf.js && codeceptjs run --config=./configs/createSubFoldersInBaseFolder.conf.js --debug",
-    "updateMismatchedBaseImage": "npm run def -- --config ./configs/updateMismatchedBaseImage.conf.js && codeceptjs run --config=./configs/updateMismatchedBaseImage.conf.js --debug"
+    "updateMismatchedBaseImage": "npm run def -- --config ./configs/updateMismatchedBaseImage.conf.js && codeceptjs run --config=./configs/updateMismatchedBaseImage.conf.js --debug",
+    "ignoreNothing": "npm run def -- --config ./configs/ignoreNothing.conf.js && codeceptjs run --config=./configs/ignoreNothing.conf.js --debug"
   },
   "repository": {
     "type": "git",
@@ -38,7 +39,7 @@
     "mkdirp": "^1.0.4",
     "mz": "^2.7.0",
     "path": "^0.12.7",
-    "resemblejs": "^3.2.4",
+    "resemblejs": "^4.0.0",
     "ts-node": "^10.0.0"
   },
   "devDependencies": {
