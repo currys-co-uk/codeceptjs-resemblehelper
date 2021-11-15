@@ -118,7 +118,7 @@ class ResembleHelper extends Helper {
       }
 
       if (this.ignoreNothing === true && !options.ignore) {
-        options.ignore = "nothing";
+        options.ignore = 'nothing';
         this.debug('Full image comparison is turn on.');
       }
 

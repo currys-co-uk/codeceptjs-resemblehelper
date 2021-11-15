@@ -31,15 +31,15 @@ exports.config = {
   mocha: {},
   name: 'codeceptjs-resemblehelper',
   plugins: {
-     selenoid: {
-       enabled: true,
-       deletePassed: true,
-       autoCreate: false,
-       autoStart: false,
-       sessionTimeout: '30m',
-       enableVideo: false,
-       enableLog: true,
-     },
+    selenoid: {
+      enabled: true,
+      deletePassed: true,
+      autoCreate: false,
+      autoStart: false,
+      sessionTimeout: '30m',
+      enableVideo: false,
+      enableLog: true,
+    },
     pauseOnFail: {},
     tryTo: {
       enabled: true,
