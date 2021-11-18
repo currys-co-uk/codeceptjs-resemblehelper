@@ -348,6 +348,8 @@ Tolerance is then set to `0` and diff with mismatch is not saved to folder. Use 
 ### ignoreNothing flag for 100% mismatch covering
 
 With `ignoreNothing` as a `true`, resemblejs covers 100% comparison of compared images and ignores nothing (e.g. similar colors) in found mismatch - every small change, every difficult pixel is resolved as a mismatch.
+If flag is not set, or has `false` value, resemblejs uses `ignore less` as default, that means `red`, `blue`, `green`, `alpha`, `minBrightness` have 16 tolerance intensity of the color and `maxBrightness` has 240 tolerance intensity.
+That covers very similar colors but in specific range.
 
 ```js
 {
