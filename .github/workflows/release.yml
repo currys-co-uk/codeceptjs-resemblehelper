@@ -5,6 +5,12 @@ on:
     branches:
       #- master
 
+    strategy:
+      matrix:
+        node-version: [14.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+  
+
 jobs:
   release:
     name: Release
@@ -16,7 +22,7 @@ jobs:
       - run: npm test
       - run: npm run ts:types
       - run: ls -a
-      - run: sh -c "sudo chmod -R 777 ."
+      - run: sh -c "chmod -R 777 ."
       - run: npm run tsc:build
         #- run: npm run semantic:release
         env:
