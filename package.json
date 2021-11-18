@@ -13,6 +13,7 @@
     "ts:types": "npm run def -- --config ./configs/prepareBaseImage-undefined.conf.js",
     "tsc:build": "npx tsc",
     "test": "echo \"test OK\"",
+    "semantic:release": "npx semantic-release --debug",
     "lint:prettier": "eslint index.ts ./tools ./configs ./tests && prettier --check .",
     "lint:prettier-fix": "eslint index.ts ./tools ./configs ./tests --fix && prettier --write .",
     "conf:prepareBaseImage_undefined": "npm run def -- --config ./configs/prepareBaseImage-undefined.conf.js && codeceptjs run --config=./configs/prepareBaseImage-undefined.conf.js  --debug",

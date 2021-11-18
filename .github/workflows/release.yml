@@ -3,7 +3,7 @@ name: Release npm package
 on:
   push:
     branches:
-      - master
+      #- master
 
 jobs:
   release:
@@ -15,8 +15,8 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run ts:types
-      - run: npx tsc
-      - run: npx semantic-release --debug
+      - run: npm run tsc:build
+      #- run: npm run semantic:release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
