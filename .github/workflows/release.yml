@@ -3,7 +3,7 @@ name: Release npm package
 on:
   push:
     branches:
-      #- master
+      - master
 
 jobs:
   release:
@@ -17,7 +17,7 @@ jobs:
       - run: npm run ts:types
       - run: sh -c "chmod -R 777 ."
       - run: npm run tsc:build
-        #- run: npm run semantic:release
+      - run: npm run semantic:release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
