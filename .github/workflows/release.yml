@@ -15,8 +15,10 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run ts:types
+      - run: ls -a
+      - run: sh -c "sudo chmod -R 777 ."
       - run: npm run tsc:build
-      #- run: npm run semantic:release
+        #- run: npm run semantic:release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

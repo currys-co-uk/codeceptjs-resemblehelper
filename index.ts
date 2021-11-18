@@ -68,7 +68,7 @@ class ResembleHelper extends Helper {
   protected async _before(): Promise<void> {
     if (this.createSubFoldersInBaseFolder) {
       event.dispatcher.on(event.test.started, (test) => {
-        const removedTags = test.title.split(" @")[0];
+        const removedTags = test.title.split(' @')[0];
         const parsedTestTitle = removedTags.slice(0, 50).replace(/[<>:"/\\|\\?*,(){} ]/g, '_');
         this.baseFolder = `${this._baseFolder}${parsedTestTitle}/`;
       });
