@@ -30,7 +30,8 @@ Example:
       alwaysSaveDiff: true,
       createSubFoldersInBaseFolder: true,
       updateMismatchedBaseImage: true,
-      ignoreNothing: true
+      ignoreNothing: true,
+      scaleToSameSize: true
     }
   }
 }
@@ -59,6 +60,8 @@ If this parameter is missing in `.conf` file, value is `undefined`.
 Use only if base images exists. Parameter is not compatible with `prepareBaseImage`.
 
 `ignoreNothing`: Optional. When `true`, resemblejs covers 100% comparison of compared images and ignores nothing (e.g. similar colors) in found mismatch - every small change, every difficult pixel is resolved as a mismatch.
+
+`scaleToSameSize`: Optional. When `true`, resemblejs compares different sizes of the same image.
 
 ### Usage
 
@@ -357,6 +360,22 @@ That covers very similar colors but in specific range.
      ResembleHelper : {
        ...
        ignoreNothing: true
+       ...
+     }
+   }
+}
+```
+
+### scaleToSameSize flag for compare different images size
+
+With `scaleToSameSize` as a `true` resemblejs compares images even in the case of different images size. If you don't use this flag, it compares only images with the same size as a standard way.
+
+```js
+{
+   helpers: {
+     ResembleHelper : {
+       ...
+       scaleToSameSize: true
        ...
      }
    }
