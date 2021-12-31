@@ -26,7 +26,7 @@ type Options = {
 
 type Selector = string | { shadow: string | string[] } | { css: string } | CodeceptJS.LocatorOrString;
 
-type GenericObject = { [key: string]: any };
+type GenericObject = { [key: string]: string | number };
 
 type BoxCoordinates = { left: number; top: number; right: number; bottom: number };
 
