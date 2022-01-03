@@ -34,7 +34,7 @@
     "@types/node": "^15.6.2",
     "@types/resemblejs": "^3.2.0",
     "aws-sdk": "^2.662.0",
-    "canvas": "^2.6.1",
+    "canvas": "^2.8.0",
     "chalk": "^4.1.0",
     "image-size": "^1.0.0",
     "mkdirp": "^1.0.4",

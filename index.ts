@@ -26,6 +26,7 @@ type Options = {
 
 type Selector = string | { shadow: string | string[] } | { css: string } | CodeceptJS.LocatorOrString;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GenericObject = { [key: string]: any };
 
 type BoxCoordinates = { left: number; top: number; right: number; bottom: number };
